@@ -22,6 +22,10 @@ it routes itself from there.
 > (otherwise they fail open: nothing breaks, but the guardrails won't fire). Semgrep ships **disabled** (it's
 > optional — see `manifest/plugins.md`).
 
+## Contributing & security
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) to propose changes and [`SECURITY.md`](SECURITY.md) to report a
+vulnerability privately. The credentials you supply are listed in [`manifest/credentials.md`](manifest/credentials.md).
+
 ## Credits & license
 Built on the **Van Clief / ICM** methodology (Jake Van Clief · Clief Notes · Eduba) and the ICM/MWP paper
 ([arXiv 2603.16021](https://arxiv.org/abs/2603.16021), MIT). The source course material is **not redistributed** —

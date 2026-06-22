@@ -66,6 +66,8 @@ Follow [`manifest/plugins.md`](manifest/plugins.md) — add the marketplaces, in
 ## 4. MCP servers + keys
 Follow [`manifest/mcps.md`](manifest/mcps.md). Most come with their plugin. Add standalone ones (e.g.
 perplexity) with **your own** API keys. Never paste a key into a file you'll commit. `claude mcp list` to verify.
+[`manifest/credentials.md`](manifest/credentials.md) is the one-stop checklist of every value you supply
+(placeholders + the optional keys) — Claude Code registers keys via `claude mcp add`/plugin auth, not a `.env`.
 
 ## 5. Weekly maintenance task (optional but recommended)
 `~/.claude/scheduled-tasks/guide-freshness-check/SKILL.md` is a **report-only** weekly dev-env health check
