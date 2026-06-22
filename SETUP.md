@@ -53,6 +53,26 @@ cp dot-claude/settings.json ~/.claude/settings.json
 If you **already** have a `settings.json`, merge these keys into yours instead of overwriting:
 `hooks`, `enabledPlugins`, `autoMode` (and `permissions` if you want the same allow-list).
 
+> **⚠️ Security-relevant keys — review these before you copy/merge.** This file was exported from a personal
+> setup, so a few keys *relax* the permission system for convenience. **None is required for the harness to
+> work** — keep, trim, or drop each to your own comfort (and your agent will likely pause on them, which is correct):
+>
+> - **`skipDangerousModePermissionPrompt: true`** — suppresses the confirmation Claude Code shows for
+>   permission-bypass ("dangerous") mode. Shipped **on**; delete the line to keep the prompt. (`defaultMode` is
+>   `"default"`, so the harness never *runs* in bypass mode on its own — this only affects the warning if you opt in.)
+> - **`permissions.allow`** — Bash commands that run **without prompting** (`git add`/`commit`, `npm install`,
+>   `gh repo:*`, `launchctl load`, version checks, …). Convenient, but `gh repo:*` and `npm install` are
+>   non-trivial (repo deletion; arbitrary post-install scripts). Trim it to what *you* want auto-allowed, or set it
+>   to `[]` to be prompted for everything.
+> - **`autoMode.environment`** — the trust context "auto mode" uses to decide what's safe to do without asking. The
+>   shipped lines assert pushes/PRs to your personal GitHub are *routine and trusted* — **rewrite them to your own
+>   posture** (and fill the `<YOUR NAME>` / `<YOUR_GITHUB_USERNAME>` placeholders, §2 below).
+>
+> Everything else — `hooks` (this is what actually activates the guardrails), `env`, and the notification flags —
+> is benign and needed. One more to eyeball: `enabledPlugins` + `extraKnownMarketplaces` register **third-party
+> plugin sources** (enabling a plugin runs their code), so install only the ones you recognize — see
+> [`manifest/plugins.md`](manifest/plugins.md).
+
 ## 2. Fill in the placeholders
 Search the placed files for `<…>` and replace:
 - `~/.claude/settings.json` → `<YOUR NAME>`, `<YOUR_GITHUB_USERNAME>` (in the `autoMode.environment` block).
