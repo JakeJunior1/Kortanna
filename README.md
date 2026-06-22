@@ -1,5 +1,7 @@
 # Kortanna
 
+> *"When the game is over, the king and the pawn go back into the same box."*
+
 A ready-made **Claude Code dev-environment harness** — drop-in commands, hooks, rules, templates, a curated
 plugin/MCP set, and the **Van Clief / Interpretable Context Methodology (ICM)** guide — so you can stand up a
 disciplined, multi-session AI-dev workflow without re-making every decision.
