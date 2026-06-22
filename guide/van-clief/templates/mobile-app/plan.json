@@ -1,0 +1,51 @@
+{
+  "template": "mobile-app",
+  "description": "Cross-platform mobile app (React Native / Flutter) with API integration",
+  "typical_tasks": [
+    {
+      "id": "T1",
+      "description": "Design screen map and navigation — list all screens, define navigation flow (stack/tab/drawer), identify shared components. Output: screen-map.md.",
+      "task_type": "planning_architecture",
+      "depends_on": []
+    },
+    {
+      "id": "T2",
+      "description": "Design state management architecture — global state shape, local state decisions, API data caching strategy. Output: state-design.md.",
+      "task_type": "planning_architecture",
+      "depends_on": ["T1"]
+    },
+    {
+      "id": "T3",
+      "description": "Build core UI components — design system (colors, typography, spacing), reusable components (Button, Card, Input, Avatar). Must match the screen map from T1.",
+      "task_type": "code_generation",
+      "depends_on": ["T1"]
+    },
+    {
+      "id": "T4",
+      "description": "Implement API integration layer — typed API client, auth token storage (secure keychain), error handling, offline detection.",
+      "task_type": "code_generation",
+      "depends_on": ["T2"]
+    },
+    {
+      "id": "T5",
+      "description": "Build all screens using components from T3, wired to API client from T4. Implement navigation from T1 screen map.",
+      "task_type": "code_generation",
+      "depends_on": ["T3", "T4"]
+    },
+    {
+      "id": "T6",
+      "description": "Configure builds — iOS and Android build configs, app icons, splash screen, environment variables for dev/staging/prod.",
+      "task_type": "fast_ops",
+      "depends_on": ["T5"]
+    }
+  ],
+  "stack_defaults": {
+    "framework": "React Native (Expo) or Flutter",
+    "state": "Zustand (React Native) or Riverpod (Flutter)",
+    "navigation": "Expo Router or React Navigation",
+    "api_client": "fetch with typed wrapper or Axios",
+    "auth_storage": "expo-secure-store or flutter_secure_storage",
+    "build": "EAS Build (Expo) or Fastlane (Flutter)"
+  },
+  "checklist_path": "templates/mobile-app/checklist.md"
+}

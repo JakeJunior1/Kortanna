@@ -1,0 +1,18 @@
+# Task Queue — {{PROJECT_NAME}} (pending)
+
+> The **pending backlog** (⏳ only). The **planning session is the sole assigner** — workers never add
+> or reassign tasks here. Each task carries an **`owner`** (who it's assigned to) so resume is
+> **assignment-based, not greedy**. One task = one entry with a stable `#N` ID (never renumber).
+>
+> **Owner format** — `owner: <handle> · session: <uuid>` (unassigned ⇒ `owner: unassigned`). `<handle>` = a
+> stable worker name the planner divvies by (e.g. `worker-2`, or a slice like `renderer`/`data`), durable across
+> that worker's re-compacts; `<session>` = that worker's live `$CLAUDE_CODE_SESSION_ID` (run `echo "$CLAUDE_CODE_SESSION_ID"`, paste literally — never guess), the exact key the resume hook matches.
+> Sessions are stood up first; the planner reads their ids and binds them at assign time.
+>
+> Lifecycle (the file IS the state — VAN-CLIEF §9): a task lives here while ⏳ pending → **the planner**
+> (sole writer of `planning/*.md`) moves it into `progress.md` (🔄) at dispatch → on merge, into
+> `memory/completed-tasks.md` (✅). Workers never edit these files — they read their assignment + report in their output. The post-compact resume hook surfaces the next item whose `session:`
+> matches THIS session's id; if none is assigned to it, the session **stops and asks** (never grabs another's).
+
+## Queue
+- ⏳ #<N> — <task title> — <one-line scope> · **owner:** <handle, e.g. worker-2 | unassigned> · **session:** `<worker session uuid>` · branch `<task-slug>`

@@ -1,0 +1,50 @@
+{
+  "template": "api-service",
+  "description": "Standalone REST API service with auth, docs, and tests",
+  "typical_tasks": [
+    {
+      "id": "T1",
+      "description": "Design API schema — define all endpoints, request/response shapes, error codes, auth strategy. Output: OpenAPI spec (openapi.yaml).",
+      "task_type": "planning_architecture",
+      "depends_on": []
+    },
+    {
+      "id": "T2",
+      "description": "Design database schema for the API — tables, indexes, relationships. Output: SQL migration files.",
+      "task_type": "planning_architecture",
+      "depends_on": ["T1"]
+    },
+    {
+      "id": "T3",
+      "description": "Implement authentication middleware — API key or JWT validation, rate limiting, request logging.",
+      "task_type": "code_generation",
+      "depends_on": ["T1"]
+    },
+    {
+      "id": "T4",
+      "description": "Implement all API endpoints per the OpenAPI spec from T1. Use the database schema from T2.",
+      "task_type": "code_generation",
+      "depends_on": ["T2", "T3"]
+    },
+    {
+      "id": "T5",
+      "description": "Write API tests — happy path, error cases, auth rejection, rate limit enforcement. Cover all endpoints from T4.",
+      "task_type": "code_generation",
+      "depends_on": ["T4"]
+    },
+    {
+      "id": "T6",
+      "description": "Generate API documentation — README with quickstart, endpoint reference from OpenAPI spec, code examples in curl and Python.",
+      "task_type": "research_docs",
+      "depends_on": ["T4"]
+    }
+  ],
+  "stack_defaults": {
+    "framework": "FastAPI (Python) or Hono (TypeScript)",
+    "database": "Neon/Postgres",
+    "auth": "API key header or JWT",
+    "docs": "OpenAPI + Swagger UI (built into FastAPI)",
+    "deploy": "Vercel (TypeScript) or Railway (Python)"
+  },
+  "checklist_path": "templates/api-service/checklist.md"
+}

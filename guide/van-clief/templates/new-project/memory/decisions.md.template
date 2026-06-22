@@ -1,0 +1,6 @@
+# Decisions — {{PROJECT_NAME}}
+
+> Curated **index** of key decisions (newest last). The full append-only records live in
+> `../planning/decisions/YYYY-MM-DD_*.md` — this points, it does not duplicate. Dates absolute.
+
+- {{YYYY-MM-DD}} — <decision in one line + the why> → `../planning/decisions/<file>.md`

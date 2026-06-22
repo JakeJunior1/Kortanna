@@ -1,0 +1,13 @@
+# In Progress — {{PROJECT_NAME}}
+
+> The live **in-progress board** (🔄). **The planner** (sole writer of `planning/*.md`) **moves a task here** from `todo.md` at dispatch,
+> and **out** to `memory/completed-tasks.md` on merge — workers never edit this file. Each entry names its **owner** so
+> concurrent sessions never collide and a resumed session knows which task is its own. Dates absolute.
+> *(Where-are-we = this board + the top of `memory/completed-tasks.md`; what's-next = `todo.md`.)*
+>
+> **Owner format** — `owner: <handle> · session: <uuid>`: `<handle>` = the stable worker name, `<session>` =
+> its live `$CLAUDE_CODE_SESSION_ID` (echo it, never guess) — the exact key the resume hook matches when a session resumes.
+
+## In progress
+- 🔄 #<N> — <task title> · **owner:** <handle, e.g. worker-2> · **session:** `<worker session uuid>` · branch `<task-slug>` · since {{YYYY-MM-DD}}
+  - status: <where it stands · last update · blockers>

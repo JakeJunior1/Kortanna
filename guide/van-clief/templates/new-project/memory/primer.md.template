@@ -1,0 +1,16 @@
+# Primer — {{PROJECT_NAME}}
+
+> Current-state snapshot for resume — the first read each session (alongside native auto-memory).
+> Thin; rewrite as state changes — NOT a changelog (history lives in `decisions.md` + `completed-tasks.md`).
+> Last updated: {{YYYY-MM-DD}}.
+
+## What this is
+{{one-line identity}}
+
+## Where we are
+- Done: <…>
+- In progress: <… → see `../planning/progress.md`>
+- Next: <… → see `../planning/todo.md`>
+
+## Gotchas worth not re-learning
+- <the non-obvious thing a fresh session would trip on>

@@ -1,0 +1,44 @@
+# {{PROJECT_NAME}}
+
+> {{PROJECT_DESCRIPTION}}
+
+---
+
+## Tech Stack
+{{TECH_STACK}}
+
+## Validation Commands
+Run these before reporting work complete. Only passing output should reach the user.
+```bash
+{{VALIDATION_COMMANDS}}
+```
+
+## Security Rules
+Non-negotiable:
+- Never hardcode API keys — use environment variables.
+- `.env` must be in `.gitignore`.
+- Rate-limit all API endpoints.
+- Sanitize all user inputs.
+
+## Project-Specific Rules
+<!-- Written fresh from the plan/brief: design constraints, performance targets, messaging strategy, -->
+<!-- security requirements, deployment target, or anything else planning decided that workers need to know. -->
+
+## Workspace Map
+```
+{{PROJECT_NAME}}/                  — THE git repo (this folder = the main-branch checkout)
+├── CLAUDE.md      — this file (identity + map + routing) · CONTEXT.md — worker dispatcher
+├── .orchestrated  — marker: main is merge-only (activates the main-protection hook)
+├── planning/      — FORWARD: todo.md (⏳ pending · planner-owned) · progress.md (🔄 in-progress board)
+│                    · specs/srd · architecture · decisions/ (ADRs) · research/
+├── memory/        — DURABLE record (native captures → curated up): primer.md · decisions.md
+│                    · lessons.md · completed-tasks.md (✅ archive)
+├── <code>         — production code + per-workspace CONTEXT.md; reaches main ONLY via PR merge
+└── branches/<task>/ — gitignored per-task worktrees; work happens here
+```
+
+## Reporting Protocol
+When a task is complete:
+1. Run all validation commands — fix failures before reporting.
+2. Summarize: what was done, what was tested, issues encountered, gotchas discovered.
+3. Don't end the session without reporting back.

@@ -1,0 +1,57 @@
+{
+  "template": "saas-app",
+  "description": "Full-stack SaaS application with auth, billing, and core product loop",
+  "typical_tasks": [
+    {
+      "id": "T1",
+      "description": "Design database schema — users, subscriptions, core domain tables. Output: SQL migration files.",
+      "task_type": "planning_architecture",
+      "depends_on": []
+    },
+    {
+      "id": "T2",
+      "description": "Implement authentication — sign up, login, session management, password reset. Use the stack from T1 schema.",
+      "task_type": "code_generation",
+      "depends_on": ["T1"]
+    },
+    {
+      "id": "T3",
+      "description": "Build core API endpoints — CRUD for main domain objects. Follow RESTful conventions. Include input validation.",
+      "task_type": "code_generation",
+      "depends_on": ["T1"]
+    },
+    {
+      "id": "T4",
+      "description": "Implement billing integration — Stripe subscription checkout, webhook handler, plan enforcement middleware.",
+      "task_type": "code_generation",
+      "depends_on": ["T2"]
+    },
+    {
+      "id": "T5",
+      "description": "Build frontend UI — dashboard layout, auth pages, core product screens. Use shadcn/ui + Tailwind.",
+      "task_type": "code_generation",
+      "depends_on": ["T2", "T3"]
+    },
+    {
+      "id": "T6",
+      "description": "Write integration tests — auth flow, billing webhooks, key API endpoints. Use pytest or vitest.",
+      "task_type": "code_generation",
+      "depends_on": ["T2", "T3", "T4"]
+    },
+    {
+      "id": "T7",
+      "description": "Configure deployment — Vercel for frontend, environment variables, production database. Write deploy checklist.",
+      "task_type": "fast_ops",
+      "depends_on": ["T5", "T6"]
+    }
+  ],
+  "stack_defaults": {
+    "frontend": "Next.js + TypeScript + Tailwind CSS + shadcn/ui",
+    "backend": "Next.js API routes or FastAPI",
+    "database": "Neon/Postgres",
+    "auth": "NextAuth.js or Clerk",
+    "billing": "Stripe",
+    "deploy": "Vercel"
+  },
+  "checklist_path": "templates/saas-app/checklist.md"
+}

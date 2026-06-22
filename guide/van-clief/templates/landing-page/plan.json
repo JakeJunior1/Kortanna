@@ -1,0 +1,43 @@
+{
+  "template": "landing-page",
+  "description": "Marketing landing page — copy, design, build, SEO, deploy",
+  "typical_tasks": [
+    {
+      "id": "T1",
+      "description": "Research and write page copy — hero headline, subheadline, value props, social proof, FAQ, CTA. Output: structured copy doc.",
+      "task_type": "research_docs",
+      "depends_on": []
+    },
+    {
+      "id": "T2",
+      "description": "Design system spec — color palette, typography, spacing, component styles. Output: design-tokens.json + style guide.",
+      "task_type": "planning_architecture",
+      "depends_on": ["T1"]
+    },
+    {
+      "id": "T3",
+      "description": "Build landing page — hero, features, social proof, pricing, CTA, footer. Use Next.js + Tailwind. Wire copy from T1, styles from T2.",
+      "task_type": "code_generation",
+      "depends_on": ["T1", "T2"]
+    },
+    {
+      "id": "T4",
+      "description": "SEO optimization — meta tags, Open Graph, sitemap.xml, robots.txt, structured data (JSON-LD). Add to the page built in T3.",
+      "task_type": "code_generation",
+      "depends_on": ["T3"]
+    },
+    {
+      "id": "T5",
+      "description": "Configure deploy — Vercel project, custom domain DNS records, environment variables, verify live at production URL.",
+      "task_type": "fast_ops",
+      "depends_on": ["T4"]
+    }
+  ],
+  "stack_defaults": {
+    "framework": "Next.js + TypeScript + Tailwind CSS",
+    "analytics": "PostHog or Plausible",
+    "forms": "React Hook Form or simple fetch POST",
+    "deploy": "Vercel"
+  },
+  "checklist_path": "templates/landing-page/checklist.md"
+}

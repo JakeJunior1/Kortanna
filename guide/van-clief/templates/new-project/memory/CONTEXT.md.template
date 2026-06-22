@@ -1,0 +1,36 @@
+# memory — CONTEXT.md
+
+The project's **durable, version-controlled memory** — the distilled record that travels with the repo.
+Upstream: root `CLAUDE.md`. Downstream: read at session start (alongside native auto-memory).
+
+> Layer 2 — for AI use. Read when working in `memory/`. Last updated: {{YYYY-MM-DD}}
+
+## What to Load
+| Task | Load | Skip |
+|------|------|------|
+| Resume / regain context | `primer.md` | the rest |
+| Why a past choice was made | `decisions.md` → `../planning/decisions/` | primer, lessons |
+| How this project wants work done | `lessons.md` | primer, decisions |
+| Audit what's shipped | `completed-tasks.md` | (read rarely) |
+
+## Folder Structure
+```
+memory/
+├── CONTEXT.md          — this file
+├── primer.md           — current-state snapshot for resume
+├── decisions.md        — curated index → ../planning/decisions/
+├── lessons.md          — project-specific lessons (distilled from native feedback)
+└── completed-tasks.md  — done archive (✅; read at wrap/audit)
+```
+
+## The Process
+This is the **durable half** of the project's memory (VAN-CLIEF §9 hybrid). The platform's **native
+auto-memory** is the auto-capture / working buffer; **`/wrap` distills** its durable bits up into here each
+session, and **`/groom` consolidates** across all layers (native · project · global · rules) periodically.
+Keep these files lean — they are the distilled, version-controlled *subset*, NOT a copy of every native note.
+
+## What NOT to Do
+- Never duplicate native auto-memory wholesale here — promote only the durable, worth-keeping bits.
+- Never let `primer.md` grow a changelog — it's a thin current-state snapshot (history → decisions/completed-tasks).
+- Never make memory the source of truth — strategy/specs live in their workspaces + `planning/`; memory points.
+- Never store secrets here — env vars / keychain only.

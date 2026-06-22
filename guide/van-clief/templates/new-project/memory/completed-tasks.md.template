@@ -1,0 +1,8 @@
+# Completed Tasks — {{PROJECT_NAME}} (done archive)
+
+> The done-pile (✅). Full task entries are **moved here** from `../planning/progress.md` on merge
+> (cut the entry, append below — keep its stable `#N` ID, never renumber). Read at wrap/audit, **never
+> at task start**; allowed to bloat. The live in-progress board is `../planning/progress.md`; the pending
+> queue is `../planning/todo.md`. *(Optional — small projects can leave done items in `progress.md`.)*
+
+- ✅ #<N> — <task title> — merged {{YYYY-MM-DD}}, PR #<n>
