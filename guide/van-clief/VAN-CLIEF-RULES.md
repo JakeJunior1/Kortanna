@@ -155,6 +155,7 @@ my-app/                     — THE git repo (root = the main-branch checkout; c
 ├── planning/           — FORWARD/current: the plan + live task system
 │   ├── todo.md         — pending QUEUE (⏳; planner-owned sole assigner; each task tagged with its `owner`)
 │   ├── progress.md     — in-progress board (🔄: owner · session · branch · status)
+│   ├── status/         — worker-owned status pings: status/<owner>.md (pull channel; worker-writable)
 │   ├── specs/          — WHAT/WHY (or a single srd.md)
 │   ├── architecture/   — (or a single architecture.md)
 │   ├── decisions/      — YYYY-MM-DD_decision-title.md (append-only ADRs)
@@ -614,6 +615,8 @@ safety net, not the worker flow.)*
 fan-out is what actually **writes and builds**, always inside its worktree. Building never happens in a planning
 session, even through a subagent.
 
+One named read-only fan-out worth reaching for in a planning session is an **LLM council** (the `council` skill): N opposed-incentive personas debate a decision, rank each other *anonymously*, and a chairman synthesizes a verdict — an **anti-sycophancy** pressure-test for a consequential choice *before* committing (built on the Workflow surface above; cf. Karpathy's `llm-council` + the 5-advisor council).
+
 **Per-task loop:** work is **assigned, not greedily grabbed** — the planner (+ the human) tags each task with
 an **`owner`** + a **`session`** — format **`owner: <handle> · session: <uuid>`** (unassigned ⇒ `owner:
 unassigned`). The `owner` is a **stable worker handle** (e.g. `worker-2`, or a slice name like `renderer`/`data`)
@@ -629,9 +632,11 @@ post-compact hook surfaces this session's id; the session claims the entry whose
 — its in-progress entry in `progress.md`, else its matched next pending in `todo.md`; **if nothing is assigned to this session, it stops and asks** — it
 never grabs unassigned work or another session's task.
 
-**`planning/*.md` is single-writer — the planner.** A worker **never edits the queue files**: it reads its assignment (the planner placed it in `progress.md` at dispatch) and reports status/done in its own session output (the planner reflects that into the `progress.md` row's `status`) — it may message the planner directly when that session is live, but **never writes the shared files to compensate, even in auto mode.** This is what stops two sessions racing the board. *(Phase-8 — a live worker correctly **deferred** its claim-commit rather than race the planner; encode that instinct.)*
+**`planning/*.md` is single-writer — the planner.** A worker **never edits the queue files**: it reads its assignment (the planner placed it in `progress.md` at dispatch) and reports status/done in its own session output, which **the planner pulls** (see "Worker→planner is *pull*, not push" below). A worker **never writes the shared board to compensate, even in auto mode.** This is what stops two sessions racing the board. *(Phase-8 — a live worker correctly **deferred** its claim-commit rather than race the planner; encode that instinct.)*
 
 **Post-merge is planner-triggered — a PR merge fires no native hook event.** Each planner session runs a background **merge-watch** for its project (`scripts/merge-watch.sh <repo>`, polling `gh pr list --state merged`). On a newly-merged PR the planner (a) moves the task `progress.md → memory/completed-tasks.md` (the board move is the planner's — `planning/*.md` is single-writer), and (b) nudges the owning worker: *merged → run `/wrap` (memory + non-board docs + commit only) → prompt the human to `/compact`*. So a **worker's `/wrap` never touches the queue board** (the hook denies it regardless) — the planner already moved it. *(The merge-watch lives in the planner session — relaunch if it ends; no native global daemon, since nudging a worker's `/wrap` needs the planner/CCD in the loop.)*
+
+**Worker→planner is *pull*, not push — a worker never messages the planner.** Cross-session messaging needs human confirmation, so it is **unavailable in an auto/worker session** (a worker that tries just stalls). The planner instead *reads* two signals the worker leaves on disk: the worker's **PR** (the done signal — `merge-watch.sh` already polls it) and a worker-owned **`planning/status/<owner>.md`** line for *blocked / mid-task / needs-input* states. That status file lives under `planning/` but is **worker-writable** — it is **not** the single-writer board (`planning-single-writer.sh` gates only `todo.md`/`progress.md`), so writing it always works, even in auto mode; `merge-watch.sh` emits a line whenever one appears or changes. (Planner→worker still uses native cross-session messaging — the planner is supervised, so its sends are confirmable; only the worker→planner direction is pull.)
 
 **Verify UIs with Preview first.** A worker checks its own running web UI with the per-session **Preview**
 (`mcp__Claude_Preview__*`) — DOM-aware, not a shared resource — and falls back to **computer-use** (the one

@@ -51,10 +51,24 @@ EOF
 exit 0
 fi
 
+# Narrow the board to THIS session: a worker should see only its OWN assigned work, not every other
+# worker's tasks (keeps the resume injection small). Keep only lines whose `session:` tag contains this
+# session's id. FAIL-SAFE: if nothing matches (no sid, or the planner put `session:` on a sub-line),
+# fall back to the full board so a worker never loses sight of its task.
+scope_note="resume yours if its \`session:\` matches this id"
+if [ -n "$sid" ]; then
+  inprog_mine=$(printf '%s\n' "$inprog" | grep -F "$sid" 2>/dev/null || true)
+  pending_mine=$(printf '%s\n' "$pending" | grep -F "$sid" 2>/dev/null || true)
+  if [ -n "$inprog_mine" ] || [ -n "$pending_mine" ]; then
+    inprog="$inprog_mine"; pending="$pending_mine"
+    scope_note="filtered to THIS session's id — your assigned work only"
+  fi
+fi
+
 cat <<EOF
 [post-compact resume] Compaction complete. ${sid_line}Resume is ASSIGNMENT-BASED — resume ONLY the task assigned to THIS session; if none is yours, STOP and ask the operator (never grab unassigned or another session's task).
 
-IN PROGRESS (planning/progress.md — resume yours if its \`session:\` matches this id):
+IN PROGRESS (planning/progress.md — ${scope_note}):
 ${inprog:-  (none)}
 
 PENDING (planning/todo.md — start your \`session:\`-matched next item only):

@@ -38,6 +38,8 @@ deny() { "$JQ" -n --arg r "$1" '{hookSpecificOutput:{hookEventName:"PreToolUse",
 deny "⛔ planning/*.md is SINGLE-WRITER — only the PLANNER edits the queue board ('$fp').
 
 A worker never moves or claims tasks. Read your assignment from planning/progress.md, build in your
-branches/<task>/ worktree, and report status/done in your final output (or message the planner if it's live).
-The planner moves tasks todo→progress at dispatch and progress→completed on merge (VAN-CLIEF §9)."
+branches/<task>/ worktree, and report status/done in your final output — the planner PULLS it (it polls your
+PRs + your planning/status/<owner>.md line). Don't try to message the planner: cross-session messaging needs
+human confirmation and is unavailable in an auto/worker session. The planner moves tasks todo→progress at
+dispatch and progress→completed on merge (VAN-CLIEF §9)."
 exit 0

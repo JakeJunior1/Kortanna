@@ -30,7 +30,7 @@ Non-negotiable:
 ├── CLAUDE.md      — this file (identity + map + routing) · CONTEXT.md — worker dispatcher
 ├── .orchestrated  — marker: main is merge-only (activates the main-protection hook)
 ├── planning/      — FORWARD: todo.md (⏳ pending · planner-owned) · progress.md (🔄 in-progress board)
-│                    · specs/srd · architecture · decisions/ (ADRs) · research/
+│                    · status/<owner>.md (worker pings) · specs/srd · architecture · decisions/ (ADRs) · research/
 ├── memory/        — DURABLE record (native captures → curated up): primer.md · decisions.md
 │                    · lessons.md · completed-tasks.md (✅ archive)
 ├── <code>         — production code + per-workspace CONTEXT.md; reaches main ONLY via PR merge

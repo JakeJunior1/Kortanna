@@ -26,7 +26,7 @@ The skeleton ships the **core** files (every project): `CLAUDE.md` · `CONTEXT.m
 merge-only) · `.gitignore` (ignores `branches/`) · `planning/{todo.md` ⏳ pending `· progress.md` 🔄 in-progress
 board`}` · `memory/{primer.md · decisions.md}` (the durable record native distills up into). **Optional** files —
 stamp from `van-clief/templates/new-project/` only when the project needs them: `srd.md`/`specs/`, `architecture`,
-`roadmap.md`, `planning/research/`, `memory/{lessons,completed-tasks}.md`.
+`roadmap.md`, `planning/research/`, `planning/status/` (worker→planner pull-channel; auto-created on first ping), `memory/{lessons,completed-tasks}.md`.
 
 ### 2. Initialize git
 ```bash

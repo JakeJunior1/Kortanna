@@ -61,7 +61,14 @@ specific slash commands) must be flagged optional, not load-bearing.
 
 - **Don't write `planning/*.md` — the planner owns it.** The planner moves your task `todo.md → progress.md`
   when it dispatches you; you just read your assignment there, then build. Report status/done in your result
-  output (or message the planner directly if it's live) — never edit the queue files yourself, even in auto mode.
+  output — the planner PULLS it (it polls your PRs + your `planning/status/<owner>.md` line; see "Reporting
+  status" below). Never edit the queue files, and **don't try to message the planner** — cross-session
+  messaging needs human confirmation and is unavailable in an auto/worker session.
+- **Reporting status — worker→planner is *pull*, not push.** Leave signals the planner's background watch
+  reads; never message it. **Done** → open your **PR** (the planner's `merge-watch.sh` sees it). **Blocked /
+  mid-task / needs input** → write ONE line to your own `planning/status/<owner>.md` (your handle), e.g.
+  `blocked · #<task> · <what you need>` — it's worker-writable (not the single-writer board), so it works even
+  in auto mode; overwrite it as your state changes.
 - Complete your task fully. Do not stop mid-task.
 - Stay inside your scope. Flag out-of-scope discoveries in `notes` — do not act on them.
 - When done, write the required JSON result block in your final response.
@@ -74,7 +81,7 @@ When you need to interact with external software or systems, apply these tiers i
 Stop at the first match.
 
 1. **SDK-native first** — operations that map to a first-class tool: file read/write/edit/glob/grep, bash (git included), web fetch. Lowest overhead, no version risk.
-2. **Dedicated MCP or CLI** — if a first-party MCP server or a `gh`-style CLI exists for the target (e.g. `gh`, a Figma MCP, a database MCP, a hosting-provider MCP), use it.
+2. **Dedicated MCP or CLI** — if a first-party MCP server or a `gh`-style CLI exists for the target (e.g. `gh`, a Figma MCP, a database MCP, a hosting-provider MCP), use it. *(Optional, if configured: the **Codex CLI** — `codex exec "…"`, subscription-covered via `codex login`, needs a paid ChatGPT plan — is a drivable cross-vendor coding agent / `council` member. Optional, never load-bearing.)*
 3. **CLI-wrapper** — for open-source software with a documented API and a CLI wrapper (e.g. LibreOffice, ComfyUI, GIMP, Inkscape, Blender, Ollama). Deterministic, token-cheap, runs headless.
 4. **Preview** (`mcp__Claude_Preview__*`, when available) — to verify or click through the project's **OWN** running web UI. DOM-aware and **per-session**, so concurrent workers each preview without fighting over one screen. The default for "does my UI actually work?" — reach for it before any pixel-driving tool.
 5. **Browser-automation MCP (e.g. Playwright / Chrome MCP)** — for arbitrary **external** web targets without a dedicated MCP/CLI: SaaS dashboards, scraping, DOM interaction on sites you don't own.
