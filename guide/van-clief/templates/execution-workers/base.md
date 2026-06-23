@@ -22,9 +22,10 @@ state, and routing map.
 Read the workspace `CONTEXT.md` (Layer 2) for the area your task lives in. This tells you
 what's in that workspace and what patterns to follow.
 
-**Step 3 — Load your task:**
+**Step 3 — Load your task (as a goal):**
 Read the task specification file path provided in your task description.
-Do not start any work until you have read it fully.
+Do not start any work until you have read it fully. Note its **`Verify-by`** done-condition — the
+verifiable goal you'll drive toward (see "Goal-Driven Execution" below).
 
 **Step 4 — Confirm tool inventory:**
 Check what tools are actually available to you (file editing, bash, MCPs). Only use tools
@@ -89,6 +90,22 @@ Stop at the first match.
 
 **Prefer Preview for your own UI; never use computer-use as a lazy substitute for it or for browser
 automation.** Many setups enforce this structurally (browsers get a "read" tier — clicks blocked).
+
+---
+
+## Goal-Driven Execution (default)
+
+Treat your assigned task as a **goal**, not a step list. Each task carries a verifiable done-condition
+(its `Goal · Done-looks-like · Verify-by`):
+1. **Restate the goal** as a concrete, checkable condition — "done = `<the Verify-by check>` holds."
+2. **Execute** toward it.
+3. **Verify** — run the check and **surface its output** (see the Quality Gate below). Evidence, never "should work."
+4. **Loop** — if it fails, fix and re-verify; don't stop until the condition provably holds. Then report, with the evidence.
+
+This is model-agnostic discipline — every worker does it. **Claude workers** have an optional accelerator: the
+operator may have kicked this session with the native **`/goal <condition>`** command (the condition mirrors your
+`Verify-by` + a turn-cap), which loops you autonomously across turns until a separate evaluator confirms it. If a
+goal is active, keep going until it clears — but the loop above is what you do regardless.
 
 ---
 

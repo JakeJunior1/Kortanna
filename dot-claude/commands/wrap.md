@@ -12,6 +12,8 @@ Do this:
 
 3. **Update memory — capture, then distill to the durable record.** First refresh the project's **native auto-memory** (the auto-loaded index + entries) with current state, key decisions, and exact next-up tasks — absolute dates, update the index. Then, **if the project keeps an in-repo `memory/` as its durable record** (`primer.md` · `decisions.md` · `lessons.md`), **distill** this session's durable, worth-keeping captures up into it — the in-repo record is the version-controlled subset that travels with the repo (VAN-CLIEF §9: native = capture, in-repo = durable; `/groom` later consolidates across layers). Promote the durable bits; don't copy raw native notes wholesale. If the repo has no memory system, skip this step.
 
+   **Planner sessions also wrap the global brain.** If you're a planning/orchestrator session managing projects from `~/Developer`, additionally distill any **generalizable** orchestration wisdom from this session into the global **`~/Developer/memory/`** (`primer` · `lessons` · `decisions`) — only what helps across **any** project (how you orchestrate; a reusable pattern; a corrected approach), **never** project-specific state (that stays in the managed project's own `memory/`); thin organizing pointers are fine — keep it lean and hand-curated. `~/Developer` is **not a git repo** → this is a file save, not a commit (the precompact gate fails open there — VAN-CLIEF §9).
+
 4. **Commit + push** everything above (follow the repo's branch convention — this repo commits to its working branch).
 
 5. **Clear the compact gate** so `/compact` can proceed next. The gate is per-session + worktree-safe

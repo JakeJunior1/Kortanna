@@ -33,6 +33,7 @@ SID="${CLAUDE_CODE_SESSION_ID:-shared}"
 GITDIR="$(cd "$REPO" 2>/dev/null && git rev-parse --absolute-git-dir 2>/dev/null || true)"
 GATE=""; [ -n "$GITDIR" ] && GATE="$GITDIR/.precompact-ready-$SID"
 GATE_LEGACY=""; [ -n "$TOPLEVEL" ] && GATE_LEGACY="$TOPLEVEL/.git/.precompact-ready"
+[ -z "$GITDIR" ] && [ -z "$TOPLEVEL" ] && exit 0  # non-repo session (e.g. planner @ ~/Developer) → nothing in-repo to gate → fail-open
 
 commit_push() {
   [ -n "$TOPLEVEL" ] || return 0

@@ -2,7 +2,8 @@
 
 > The **pending backlog** (⏳ only). The **planning session is the sole assigner** — workers never add
 > or reassign tasks here. Each task carries an **`owner`** (who it's assigned to) so resume is
-> **assignment-based, not greedy**. One task = one entry with a stable `#N` ID (never renumber).
+> **assignment-based, not greedy**. One task = one entry with a stable `#N` ID (never renumber). Each task is framed as a
+> **goal** — a *verifiable* done-condition (the worker's success criterion; also the optional native `/goal` condition).
 >
 > **Owner format** — `owner: <handle> · session: <uuid>` (unassigned ⇒ `owner: unassigned`). `<handle>` = a
 > stable worker name the planner divvies by (e.g. `worker-2`, or a slice like `renderer`/`data`), durable across
@@ -15,4 +16,4 @@
 > matches THIS session's id; if none is assigned to it, the session **stops and asks** (never grabs another's).
 
 ## Queue
-- ⏳ #<N> — <task title> — <one-line scope> · **owner:** <handle, e.g. worker-2 | unassigned> · **session:** `<worker session uuid>` · branch `<task-slug>`
+- ⏳ #<N> — <task title> — <one-line scope> · **goal (done = a verifiable check):** <e.g. `npm test` passes & the PR is open> · **owner:** <handle, e.g. worker-2 | unassigned> · **session:** `<worker session uuid>` · branch `<task-slug>`

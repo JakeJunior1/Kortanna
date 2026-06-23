@@ -65,7 +65,7 @@ pairing with §6 spec-before-execution). *(The Vault — toolkit architectures +
 subagent in a fixed 5-part shape: **Identity** (who it is) → **Task** (the outcome / "what done looks like") →
 **Context** (named inputs) → **Constraints** (`Must NOT include`, scope) → **Output** (exact format / path). A
 dispatch prompt that lists implementation steps is the *intent-not-implementation* failure at the agent level:
-say what done looks like + the boundaries, and let the worker choose how. *(execution-worker contract;
+say what done looks like + the boundaries, and let the worker choose how. Make "what done looks like" a **verifiable condition** — a check the worker runs and surfaces — so it is the worker's *goal* (execute → verify → loop until it holds) and can double as the condition for the native `/goal` autonomous-completion command (§9). *(execution-worker contract;
 cf. §8 "a brief is a contract.")*
 
 ```
@@ -569,7 +569,7 @@ is the **capture / working buffer**, and a lean **in-repo `memory/`** is the **d
 the repo** — `primer.md` (current-state snapshot for resume) · `decisions.md` (curated index → `planning/decisions/`)
 · `lessons.md` (project-specific lessons). The in-repo record is the *distilled, version-controlled subset* of
 what native captured — **not a parallel duplicate.** **Two cadences keep it alive:** **`/wrap` (every session)**
-distills this session's durable native captures up into the in-repo `memory/`; **`/groom` (periodic *dream pass*)**
+distills this session's durable native captures up into the in-repo `memory/` (a **planner** session additionally distills *generalizable* orchestration wisdom — never project-specific state — up into the global `~/Developer/memory/`); **`/groom` (periodic *dream pass*)**
 consolidates across **all** layers (native · project · client · global) and **graduates** proven lessons upward
 (project → global → a rule) + proposes skills/agents. A correction lands in the lowest layer that fits. The real
 anti-pattern is a hand-rolled file that *duplicates* native and is **never curated** — *that* rots into dead
@@ -631,6 +631,8 @@ state:** `planning/todo.md` (pending; each entry tagged `owner: <handle> · sess
 post-compact hook surfaces this session's id; the session claims the entry whose **`session:` matches that id**
 — its in-progress entry in `progress.md`, else its matched next pending in `todo.md`; **if nothing is assigned to this session, it stops and asks** — it
 never grabs unassigned work or another session's task.
+
+**Every task is dispatched as a goal; a worker runs goal-driven by default.** The planner authors each task's **`Goal · Done-looks-like · Verify-by`** — a *verifiable* done-condition (a check the worker runs and surfaces). The worker treats it as a goal: restate the condition → execute → verify → **loop until it provably holds** → report with evidence. This is the **model-agnostic backbone** (works for any worker model). **Claude workers get an optional accelerator** — the native **`/goal <condition>`** command runs the worker *autonomously across turns* until a separate fast evaluator confirms the condition (the condition mirrors the `Verify-by` + a turn-cap like "…or stop after N turns"). A slash command **can't be delivered by cross-session dispatch** (it arrives wrapped in a message envelope, so it never parses as a command) and a worker can't self-invoke it — so the kick is **semi-auto**: when the planner marks a task goal-autonomous it emits a **ready-to-paste dispatch** (the brief **+** a *leading* `/goal <condition>` line) and the human pastes it into the worker session, selecting `/goal` from the command list so it registers. The native command is Claude-only and **optional**; the default goal-driven discipline is what every worker always does.
 
 **`planning/*.md` is single-writer — the planner.** A worker **never edits the queue files**: it reads its assignment (the planner placed it in `progress.md` at dispatch) and reports status/done in its own session output, which **the planner pulls** (see "Worker→planner is *pull*, not push" below). A worker **never writes the shared board to compensate, even in auto mode.** This is what stops two sessions racing the board. *(Phase-8 — a live worker correctly **deferred** its claim-commit rather than race the planner; encode that instinct.)*
 
