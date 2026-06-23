@@ -16,7 +16,18 @@
 set -uo pipefail
 
 MODE="${1:-manual}"
-REPO="${CLAUDE_PROJECT_DIR:-$PWD}"
+
+# Resolve the repo from the session's ACTUAL cwd — NOT CLAUDE_PROJECT_DIR, which points at the
+# MAIN checkout for EVERY orchestrated session (workers included: their sessions are rooted at the
+# main checkout and create branches/<task>/ worktrees beneath it). Using CLAUDE_PROJECT_DIR here
+# made a worker's auto-compact autosave operate on the SHARED MAIN CHECKOUT — committing the
+# planner's in-flight brain-docs and pushing them to trunk past the review gate. Prefer the
+# PreCompact payload's .cwd (stdin) → the hook's $PWD → CLAUDE_PROJECT_DIR (last resort: the old,
+# buggy value). Same cwd-resolution the pre-push review guard uses.
+input="$(cat 2>/dev/null || true)"
+JQ="$(command -v jq || true)"
+cwd=""; [ -n "$JQ" ] && cwd="$(printf '%s' "$input" | "$JQ" -r '.cwd // empty' 2>/dev/null || true)"
+REPO="${cwd:-${PWD:-${CLAUDE_PROJECT_DIR:-.}}}"
 TOPLEVEL="$(cd "$REPO" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null || true)"
 SID="${CLAUDE_CODE_SESSION_ID:-shared}"
 GITDIR="$(cd "$REPO" 2>/dev/null && git rev-parse --absolute-git-dir 2>/dev/null || true)"
@@ -26,11 +37,20 @@ GATE_LEGACY=""; [ -n "$TOPLEVEL" ] && GATE_LEGACY="$TOPLEVEL/.git/.precompact-re
 commit_push() {
   [ -n "$TOPLEVEL" ] || return 0
   cd "$TOPLEVEL" || return 0
-  if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-    git add -A
-    git commit -q --no-verify -m "wip: pre-compact autosave $(date '+%Y-%m-%d %H:%M')" 2>/dev/null || true
-    git push -q 2>/dev/null || true
+  [ -n "$(git status --porcelain 2>/dev/null)" ] || return 0
+  git add -A
+  git commit -q --no-verify -m "wip: pre-compact autosave $(date '+%Y-%m-%d %H:%M')" 2>/dev/null || true
+  # HARD GUARD: an unattended auto-compact autosave must NEVER push to the default branch — that
+  # would land a wip/worker commit on trunk past the review gate (this push runs INSIDE a hook, so
+  # the pre-push guard never sees it). Push ONLY a feature branch to its own upstream; on the
+  # default branch (or detached HEAD) the local commit above already protects the work — stop there.
+  cur="$(git branch --show-current 2>/dev/null || true)"
+  def="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@')"
+  if [ -z "$def" ]; then
+    git show-ref --verify --quiet refs/heads/main && def="main"
+    [ -z "$def" ] && git show-ref --verify --quiet refs/heads/master && def="master"
   fi
+  [ -n "$cur" ] && [ -n "$def" ] && [ "$cur" != "$def" ] && git push -q 2>/dev/null || true
 }
 
 if [ "$MODE" = "auto" ]; then
