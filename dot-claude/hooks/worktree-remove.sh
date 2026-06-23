@@ -9,7 +9,7 @@
 set -uo pipefail
 
 JQ="$(command -v jq || true)"
-[ -n "$JQ" ] || { echo "WorktreeRemove hook: jq not found — skipping (fail-open)" >&2; exit 0; }
+[ -n "$JQ" ] || { echo "WorktreeRemove hook: jq not found" >&2; exit 1; }
 
 input="$(cat 2>/dev/null || true)"
 path="$(printf '%s' "$input" | "$JQ" -r '.worktree_path // empty' 2>/dev/null || true)"

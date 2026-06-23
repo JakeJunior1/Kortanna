@@ -13,7 +13,7 @@
 set -uo pipefail
 
 JQ="$(command -v jq || true)"
-[ -n "$JQ" ] || { echo "WorktreeCreate hook: jq not found — skipping (fail-open)" >&2; exit 0; }
+[ -n "$JQ" ] || { echo "WorktreeCreate hook: jq not found" >&2; exit 1; }
 
 input="$(cat 2>/dev/null || true)"
 name="$(printf '%s' "$input" | "$JQ" -r '.name // empty' 2>/dev/null || true)"
