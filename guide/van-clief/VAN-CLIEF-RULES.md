@@ -608,7 +608,7 @@ tree at the root; the main-protection hook backs this for commits), and worktree
 deliberate cleanup pass (`git worktree remove` after merge, paired with `archive_session`) — never auto-deleted,
 never `gh pr merge --delete-branch`. *(A global `WorktreeCreate` hook still normalizes the placement of any
 worktree that DOES get auto-created — e.g. a subagent's `isolation: worktree` — into `branches/`, but that is a
-safety net, not the worker flow.)*
+safety net, not the worker flow.)* **Relatedly, keep the host app's *Auto-archive after PR merge or close* setting OFF.** It lives in the app, not `~/.claude`, so **no hook can guard it**; left ON it archives a worker session the instant its PR merges/closes — orphaning the session mid-flow and fighting the deliberate teardown above (teardown is a *chosen* step: merge → `merge-watch` nudges `/wrap` → deliberate `git worktree remove` + `archive_session`, never automatic).
 
 **Both tiers fan out** to subagents and background tasks — but to opposite ends: a **planner's** fan-out is
 **read-only** (research, explore, analyze — to plan better) and produces nothing buildable; a **worker's**

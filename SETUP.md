@@ -116,3 +116,7 @@ matching `_template/` and stamp from `guide-setup/van-clief/templates/`.
   runs it (see VAN-CLIEF §9, "the method's wiring lives off-repo").
 - Everything here is yours to edit. The `memory/` files (`primer`, `decisions`, `lessons`) are starter
   skeletons — `lessons.md` is seeded with reusable operating defaults; make them yours.
+- **Running multi-session orchestration? Keep Claude's *Auto-archive after PR merge or close* setting OFF.**
+  It's an **app-level** setting (not in `~/.claude`, so no hook can guard it). Left ON, it archives a worker
+  session the moment its PR merges/closes — orphaning it mid-flow and fighting the deliberate teardown the
+  planner+workers model relies on (merge → `/wrap` → deliberate `git worktree remove`). See VAN-CLIEF §9.
