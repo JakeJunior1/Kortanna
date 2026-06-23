@@ -62,6 +62,32 @@ fi
 deny()  { "$JQ" -n --arg r "$1" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'; }
 allow() { "$JQ" -n --arg r "$1" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"allow",permissionDecisionReason:$r}}'; }
 
+# Docs-only exemption: a default-branch push has no code-review risk and no public-leak risk when
+# (a) the remote is PRIVATE and (b) EVERY file in the pushed range is *.md. Markdown never executes
+# as code, and on a private remote nothing can leak to the public — so a planner's brain-docs (and
+# any other docs) reach main without the review dance. ALL-OR-NOTHING: any non-.md path (code, or a
+# deleted/renamed file surfaced by --no-renames) falls through to the gate, so CODE is still reviewed
+# everywhere and PUBLIC repos stay gated on everything (incl. docs). FAIL-SAFE — do NOT exempt (gate
+# as usual) if: origin/$def is unresolvable; visibility is anything but PRIVATE (public / internal /
+# unknown / no gh); or the gh lookup errors or times out.
+if git -C "$TOP" rev-parse --verify --quiet "origin/$def" >/dev/null 2>&1; then
+  TMO="$(command -v timeout || command -v gtimeout || true)"
+  vis=""
+  command -v gh >/dev/null 2>&1 && vis="$(cd "$TOP" && ${TMO:+$TMO 5 }gh repo view --json visibility -q .visibility 2>/dev/null || true)"
+  if [ "$vis" = "PRIVATE" ]; then
+    changed="$(git -C "$TOP" diff --name-only --no-renames "origin/$def..$def" 2>/dev/null || true)"
+    # Defense-in-depth: also reject if any entry is a symlink/gitlink (new mode 120000/160000) — a
+    # non-regular file named *.md is not a doc. --raw exposes the new mode that --name-only hides.
+    raw="$(git -C "$TOP" diff --raw --no-renames "origin/$def..$def" 2>/dev/null || true)"
+    if [ -n "$changed" ] \
+       && ! printf '%s\n' "$changed" | grep -qvE '\.md$' \
+       && ! printf '%s\n' "$raw" | grep -qE '^:[0-7]{6} (120000|160000) '; then
+      allow "Docs-only (*.md) push to a PRIVATE repo's $def — no code review needed."
+      exit 0
+    fi
+  fi
+fi
+
 GATE="$TOP/.git/.review-ready"
 if [ -f "$GATE" ]; then
   now=$(date +%s)
