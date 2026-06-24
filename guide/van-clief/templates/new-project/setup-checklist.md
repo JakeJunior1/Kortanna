@@ -36,7 +36,11 @@ git init        # .gitignore already ships with the skeleton (ignores branches/)
 ### 3. Create the remote and set origin
 ```bash
 gh repo create {{PROJECT_NAME}} --private --source=. --remote=origin
+gh repo edit --delete-branch-on-merge   # auto-clean the REMOTE head branch when a PR merges
 ```
+The `--delete-branch-on-merge` flag turns on GitHub's *Automatically delete head branches*, so a merged
+PR's remote branch is removed **server-side**. The **local** branch + worktree are untouched — they're torn
+down in the deliberate post-merge cleanup pass (VAN-CLIEF §9), never via `gh pr merge --delete-branch`.
 
 ### 4. Write the project CLAUDE.md
 Copy `project-CLAUDE.md.template` to `{{PROJECT_NAME}}/CLAUDE.md` and fill the placeholders from the brief:

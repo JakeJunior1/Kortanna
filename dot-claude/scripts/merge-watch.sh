@@ -6,6 +6,11 @@
 # (b) nudges the owning worker: "merged → /wrap (memory + non-board docs + commit only) → prompt
 # the human to /compact". The worker's /wrap never touches the board.
 #
+# ALSO watches planning/status/*.md — the PRIMARY worker→planner channel (blocked / needs-input). THIS
+# script (not worker-monitor.sh) surfaces durable status pings: it emits a STATUS: line whenever a status
+# file appears or changes. worker-monitor.sh only tails transcripts for live @planner nudges (best-effort
+# supplement). Run BOTH — this one covers the DURABLE signals (merged PRs + status files).
+#
 # Run per project, in the planner session, in the background:   merge-watch.sh <repo-path> &
 # Lives in the planner session — relaunch if it ends (no native global daemon). Needs `gh`.
 set -uo pipefail
