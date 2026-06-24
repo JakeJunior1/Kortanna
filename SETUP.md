@@ -15,40 +15,48 @@ memories or transcripts. Placeholders mark every spot you fill in.
 
 ## 0. Prerequisites
 Install the CLIs in [`manifest/clis.md`](manifest/clis.md) first — **Claude Code, git, gh, node, python3**.
-**Windows:** install **Git Bash** or use **WSL** so the bash hooks can run (see clis.md).
+**Windows:** do the **whole** setup in **Git Bash** (recommended — it ships with Git for Windows) or WSL. You
+need a real `bash` for the guardrail hooks anyway, and it's the only shell where the commands below work. **Do
+NOT run them in cmd.exe or PowerShell** — there `cp` doesn't exist and `~`/`$HOME` may not resolve, so the copy
+steps create a stray literal `~` folder instead of installing into your home directory. (In Git Bash, `$HOME` =
+your Windows home `C:\Users\<you>`, which is exactly where Claude Code looks.)
 
 ## 1. Place the files
-> If you already have a `~/.claude/`, **back it up first** (`cp -R ~/.claude ~/.claude.bak`) and *merge* rather
-> than overwrite — see step 1c.
+
+**Run every command below in `bash`** — your macOS/Linux terminal, or **Git Bash / WSL on Windows** (§0). They
+use `$HOME` (your home folder) and `cp`; cmd.exe/PowerShell handle neither, and you'd end up with a stray `~` folder.
+
+> If you already have a `$HOME/.claude/`, **back it up first** (`cp -R "$HOME/.claude" "$HOME/.claude.bak"`) and
+> *merge* rather than overwrite — see step 1c.
 
 **a. The wiring → `~/.claude/`**
 Copy the contents of `dot-claude/` into `~/.claude/`:
 ```bash
-mkdir -p ~/.claude
-cp -R dot-claude/commands ~/.claude/
-cp -R dot-claude/hooks ~/.claude/
-cp -R dot-claude/rules ~/.claude/
-cp -R dot-claude/skills ~/.claude/
-cp -R dot-claude/scheduled-tasks ~/.claude/
-cp -R dot-claude/scripts ~/.claude/
+mkdir -p "$HOME/.claude"
+cp -R dot-claude/commands "$HOME/.claude/"
+cp -R dot-claude/hooks "$HOME/.claude/"
+cp -R dot-claude/rules "$HOME/.claude/"
+cp -R dot-claude/skills "$HOME/.claude/"
+cp -R dot-claude/scheduled-tasks "$HOME/.claude/"
+cp -R dot-claude/scripts "$HOME/.claude/"
 ```
 
 **b. The dev tree → `~/Developer/`**
 ```bash
-mkdir -p ~/Developer
-cp -R developer-tree/CLAUDE.md developer-tree/CONTEXT.md developer-tree/memory ~/Developer/
-cp -R developer-tree/projects ~/Developer/        # contains projects/_template
-cp -R developer-tree/clients  ~/Developer/         # contains clients/_template
-cp -R guide ~/Developer/guide-setup                # the methodology guide
+mkdir -p "$HOME/Developer"
+cp -R developer-tree/CLAUDE.md developer-tree/CONTEXT.md developer-tree/memory "$HOME/Developer/"
+cp -R developer-tree/projects "$HOME/Developer/"        # contains projects/_template
+cp -R developer-tree/clients  "$HOME/Developer/"         # contains clients/_template
+cp -R guide "$HOME/Developer/guide-setup"                # the methodology guide
 # optional: version the guide locally
-( cd ~/Developer/guide-setup && git init -q && git add -A && git commit -qm "import guide" )
+( cd "$HOME/Developer/guide-setup" && git init -q && git add -A && git commit -qm "import guide" )
 ```
 
 **c. settings.json (the one file to merge carefully)**
 `dot-claude/settings.json` carries the **hooks wiring**, the **`enabledPlugins`** on/off map, and the
 **`autoMode`** trust block. If you have **no** existing settings, just copy it:
 ```bash
-cp dot-claude/settings.json ~/.claude/settings.json
+cp dot-claude/settings.json "$HOME/.claude/settings.json"
 ```
 If you **already** have a `settings.json`, merge these keys into yours instead of overwriting:
 `hooks`, `enabledPlugins`, `autoMode` (and `permissions` if you want the same allow-list).

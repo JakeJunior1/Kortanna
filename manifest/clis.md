@@ -14,7 +14,9 @@ Install these before placing the files. Recent stable versions are fine.
 ## Windows
 The guardrail hooks are **bash `.sh` scripts**. On Windows, Claude Code must be able to run `bash` — install
 **Git Bash** (ships with Git for Windows) or use **WSL**. Without a `bash` on PATH the hooks silently no-op
-(they fail open — nothing breaks, but the guardrails won't fire). macOS/Linux have bash already.
+(they fail open — nothing breaks, but the guardrails won't fire). macOS/Linux have bash already. **Run the
+`SETUP.md` install commands in that same bash, too** — in cmd.exe/PowerShell `~`/`$HOME` and `cp` don't work,
+so the copy steps create a stray literal `~` folder instead of installing into your home directory.
 
 ## One-time auth
 - `gh auth login` (GitHub)
