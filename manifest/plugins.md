@@ -26,6 +26,10 @@ claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill           # frontend/des
 claude plugin install cli-anything@cli-anything                   # generate agent-drivable CLIs for GUI/SDK-only tools
 ```
 
+> **Design tooling:** `ui-ux-pro-max` is the shipped general design-quality skill. For a fuller design system
+> with a **no-API deterministic detector**, see **Impeccable** in [`clis.md`](clis.md) — but pick *one* general
+> design-guidance tool to avoid overlap (`design-md-reference` is complementary: brand-matching).
+
 ## 3. Optional — need your own account / auth (install only what you use)
 ```bash
 claude plugin install sentry@claude-plugins-official    # error monitoring

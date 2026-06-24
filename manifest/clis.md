@@ -31,3 +31,18 @@ codex exec "…"              # one-shot, scriptable — how a worker / council 
 ```
 Gating: subscription sign-in needs a **paid** plan (the free tier won't get CLI access), and the sign-in flow
 may auto-create an API key in your OpenAI org — review your keys afterward. Skip entirely on free.
+
+## Optional — frontend design system (Impeccable)
+Not required; nothing in the harness depends on it. **Impeccable** (`pbakaus/impeccable`) is a design-quality
+system for AI coding agents — a `/impeccable` skill + 23 design commands, **44 deterministic detector rules**
+(anti-generic-design linting that runs with **no LLM/API calls**), and live browser iteration. Multi-provider
+(Claude Code · Codex · Cursor · Copilot · …). Reach for it on **real frontend work** — not before.
+```bash
+npx impeccable install      # installs a skill + hooks + CLI (prompts: project or global ~/.claude) + PRODUCT.md / DESIGN.md
+```
+- **Standout = the deterministic detector** (a no-API design linter) — the one design check our LLM-guidance tools
+  don't do; use it as the **design gate** (the §1 "deterministic → code" layer, applied to UI).
+- **Overlap warning:** it overlaps with the `ui-ux-pro-max` plugin (general design guidance) — **pick one**, don't
+  run both (two overlapping design systems = drift/bloat). The `design-md-reference` skill is *complementary* — it
+  matches a *specific named brand* (different job).
+- **Untrusted code (§6):** it installs **hooks that run on your agent workflows** — **review them before enabling.**
