@@ -18,8 +18,8 @@ read the method (`…/van-clief/VAN-CLIEF-RULES.md`) + your role prompt there, *
 Run by a **planning session** (sole assigner) + **worker sessions**. Work is **assigned, not grabbed** — each
 task carries an `owner`. **The planner is the single writer of `planning/*.md`** — it moves the task into
 `planning/progress.md` at dispatch (🔄 — owner · session · branch); the worker reads its assignment, then works in `branches/<slug>/` → PR → auto
-independent review (reviewer subagent; escalates → `/code-review ultra` if large/risky/critical) → the human reviews
-the live feature → merge to `main` → the entry **moves into `memory/completed-tasks.md`** (✅) → `/wrap` →
+independent review (reviewer subagent; escalates → `/code-review ultra` if large/risky/critical) → the human VERIFIES
+the live feature → the worker merges to `main` in its own session (the planner never merges) → the entry **moves into `memory/completed-tasks.md`** (✅) → `/wrap` →
 `/compact`. Production code reaches `main` only via merge. <project-specific workflow notes + gotchas…>
 
 ## Skills & Tools

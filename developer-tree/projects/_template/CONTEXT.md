@@ -19,7 +19,7 @@ sequence, the 6-tier Preview-first tool tree, the JSON result contract). The met
 
 Run by a **planning session** (sole assigner + **single writer of `planning/*.md`**) + **worker sessions**.
 The planner moves a task `todo.md → progress.md` at dispatch; the worker reads its assignment, builds in
-`branches/<slug>/` → PR → auto independent review (reviewer subagent; escalates → `/code-review ultra` if large/risky/critical) → the human reviews the live feature → merge → `/wrap` → `/compact`.
+`branches/<slug>/` → PR → auto independent review (reviewer subagent; escalates → `/code-review ultra` if large/risky/critical) → the human VERIFIES the live feature → the worker merges in its own session (the planner never merges) → `/wrap` → `/compact`.
 Production code reaches `main` only via merge; workers never edit `planning/*.md` (canonical: VAN-CLIEF §9).
 
 <project-specific workflows + gotchas>

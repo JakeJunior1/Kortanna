@@ -26,7 +26,7 @@ re-explanations.
   delete it from here** (one fact, one location).
 
 ## Working with the operator (you)
-- **The human is the gate on irreversible steps.** They merge PRs manually and run `/compact` themselves.
+- **The human is the gate on irreversible steps.** They **VERIFY** each PR (the gate) and run `/compact` themselves; after their verify the **worker runs the merge in its own session** — the **planner NEVER merges** (it only watches → nudges `/wrap` → moves the board).
   Workers `/wrap` then stand by — they never auto-merge or self-compact.
 - **Recommend, don't survey.** When a choice has a sensible default, pick it, say so, and proceed; surface a
   real fork only when the answer changes the outcome.

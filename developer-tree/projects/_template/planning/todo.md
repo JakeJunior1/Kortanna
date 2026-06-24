@@ -5,7 +5,7 @@
 >
 > Loop (canonical spec: VAN-CLIEF §9): the planner moves a task `todo.md → progress.md` (`🔄`) **at dispatch**;
 > the worker builds in `branches/<slug>/` → PR → auto independent review (reviewer subagent; escalates →
-> `/code-review ultra` if large/risky/critical) → the human reviews the live feature → merge → the planner moves
+> `/code-review ultra` if large/risky/critical) → the human VERIFIES the live feature → the worker merges in its own session (the planner never merges) → the planner moves
 > it to `../memory/completed-tasks.md` (`✅`). Workers read their assignment + report in their output — they
 > never edit these files. (Surfaced post-compact by the resume hook, matched by `session:`.)
 

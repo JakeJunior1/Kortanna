@@ -46,7 +46,7 @@ and the planner/worker locks. No marker → the project behaves like a normal re
 1. The planner assigns a task (tagged with an `owner` + the worker's `session` id) and moves it onto the board.
 2. The worker builds it in its worktree → pushes a branch → opens a PR.
 3. An **independent reviewer** (a fresh-context agent) checks the diff; large/risky diffs get flagged for you to run `/code-review ultra`.
-4. **You** review the live feature, then **merge** — the one irreversible step stays human.
+4. **You** verify the live feature — the gate stays human — then the **worker merges its own PR** (the planner never merges); the planner watches the merge, nudges `/wrap`, and moves the board.
 5. The worker `/wrap`s (saves memory + docs), you `/compact`, and it picks up its next assigned task.
 
 ### The board (the file *is* the state)
