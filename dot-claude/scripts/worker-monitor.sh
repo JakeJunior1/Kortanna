@@ -8,8 +8,9 @@
 #   worker-monitor.sh <worker1.jsonl> <worker2.jsonl> ...
 #   (transcripts live at ~/.claude/projects/<encoded-cwd>/<session-id>.jsonl)
 #
-# RESUME: background monitors do NOT survive a Claude Desktop restart or /compact — the planner
-# RELAUNCHES this on resume (it's part of the planner's resume-ops checklist). Needs `jq`.
+# RESUME: background monitors do NOT survive a Claude Desktop restart or /compact (and can die mid-session
+# to an external kill) — the planner (re)starts this at session start AND re-checks each turn, restarting it
+# if it isn't running (not just on resume; part of the planner's per-turn ops). Needs `jq`.
 #
 # Robustness notes (this is the PROVEN-robust shape; the fragile version kept dying / tripping the
 # harness "too many events → auto-stop"):
@@ -24,7 +25,7 @@ command -v jq >/dev/null 2>&1 || { echo "worker-monitor: jq not found" >&2; exit
 [ "$#" -ge 1 ] || { echo "usage: worker-monitor.sh <transcript.jsonl> [more.jsonl ...]" >&2; exit 1; }
 
 # Only genuine worker→planner handoffs. Keep it tight (and free of `.{0,N}`).
-FILTER='@planner|planner:|ready to (land|merge)|BLOCKER|blocked:|ping planner'
+FILTER='@planner|planner:|ready to (land|merge)|MERGED PR|UNBLOCK|BLOCKER|blocked:|ping planner'
 
 echo "worker-monitor armed — $# transcript(s); filter: $FILTER"
 

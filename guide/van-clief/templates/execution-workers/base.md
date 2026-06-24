@@ -64,12 +64,17 @@ specific slash commands) must be flagged optional, not load-bearing.
   when it dispatches you; you just read your assignment there, then build. Report status/done in your result
   output — the planner PULLS it (it polls your PRs + your `planning/status/<owner>.md` line; see "Reporting
   status" below). Never edit the queue files, and **don't try to message the planner** — cross-session
-  messaging needs human confirmation and is unavailable in an auto/worker session.
+  messaging needs human confirmation and is unavailable in an auto/worker session. **Don't route handoffs
+  through the human either** ("paste this to the planner") — slower and brittle; leave on-disk signals the planner reads instead.
 - **Reporting status — worker→planner is *pull*, not push.** Leave signals the planner's background watch
   reads; never message it. **Done** → open your **PR** (the planner's `merge-watch.sh` sees it). **Blocked /
   mid-task / needs input** → write ONE line to your own `planning/status/<owner>.md` (your handle), e.g.
   `blocked · #<task> · <what you need>` — it's worker-writable (not the single-writer board), so it works even
-  in auto mode; overwrite it as your state changes.
+  in auto mode; overwrite it as your state changes. This file is your **durable** channel (it survives a planner
+  restart). For an urgent **live nudge** you may *also* drop `@planner <message>` (or `MERGED PR #<n>` · `UNBLOCK`
+  · `BLOCKER`) as a line in your normal output — the planner's `worker-monitor.sh` tails for those — but it's
+  best-effort *on top of* the status file: the tail catches only new lines and stops if the planner restarts, so
+  anything that must not be missed goes in `planning/status/<owner>.md`.
 - Complete your task fully. Do not stop mid-task.
 - Stay inside your scope. Flag out-of-scope discoveries in `notes` — do not act on them.
 - When done, write the required JSON result block in your final response.
