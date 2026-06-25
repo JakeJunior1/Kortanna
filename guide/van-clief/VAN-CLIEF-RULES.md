@@ -592,7 +592,9 @@ For a project run by **multiple concurrent sessions**, continuity also means two
 redo each other's work. The model: **one planning session** (rooted at the dev root, plan/ask mode — it
 writes only `.md`: the plan, `CLAUDE.md`/`CONTEXT.md`, the `planning/todo.md` queue, memory; it is the
 **sole task-assigner**) + **N worker sessions** (each anchored at the project root = the main-branch
-checkout, each owning a slice, each working in its own gitignored `branches/<task>/` worktree). Production
+checkout, each owning a slice, each working in its own gitignored `branches/<task>/` worktree) **+
+optionally one reviewer session** (a standing, review-only role that independently reviews each
+worker's pushed PR *before* the human verifies — see *The reviewer role* below). Production
 **code reaches `main` only via PR merge** — never a direct commit; the planner commits brain docs (`.md`)
 to main directly. A worker also mounts **`~/Developer/guide-setup` as a *read-only* additional directory** (its
 execution-worker role prompt + the method live there) — **never the whole dev root** (that would unseal other
@@ -610,6 +612,35 @@ never `gh pr merge --delete-branch`. *(That ban is **local-only** — the resume
 worktree that DOES get auto-created — e.g. a subagent's `isolation: worktree` — into `branches/`, but that is a
 safety net, not the worker flow.)* **Relatedly, keep the host app's *Auto-archive after PR merge or close* setting OFF.** It lives in the app, not `~/.claude`, so **no hook can guard it**; left ON it archives a worker session the instant its PR merges/closes — orphaning the session mid-flow and fighting the deliberate teardown above (teardown is a *chosen* step: merge → `merge-watch` nudges `/wrap` → deliberate `git worktree remove` + `archive_session`, never automatic). Same call for the other **app-level PR-automation toggles** — keep **Auto-merge when ready** OFF (merge is the human-gated irreversible step — see the per-task loop) and **Auto-fix CI & address comments** OFF (it silently churns the branch you're about to verify; the worker iterates *visibly* when you send it back). None live in `~/.claude`, so no hook can guard them — the method can only document them.
 
+**The reviewer role (the third session) — an independent review *on the PR*, before the human
+verifies.** A worker's own pre-push review is fresh-context but *in-lineage* — the author commissioned
+it, in the author's session. For orchestrated projects, promote that into a standing **reviewer
+session**: one per project, stood up beside the planner, **review-only**, rooted at the project root
+(same resume-safe rooting as a worker — *by rooting, not the worktree toggle*; mounts
+`~/Developer/guide-setup` read-only). It **edits no code** — it reads each PR's branch in a dedicated
+read-only worktree (`branches/_review/`, re-pointed per PR via `git fetch origin <branch>` +
+`git worktree add --detach`), reads the surrounding code, and runs tests (read-only execution); its
+only writes are review artifacts (`review/findings-<pr>.md`) and its status line. Because it never
+edits and never messages, it runs safely in **auto mode**, coordinating entirely through **PR labels**
+— chosen because they are **server-side** (they survive a compact/restart, the same fragility that
+kills the background watchers) and **visible to the human in the GitHub UI**. The state machine:
+a worker opens its PR with **`needs-review`** → the reviewer's **`reviewer-watch.sh`** (sibling of
+`merge-watch.sh`) sees it, **claims** it (`needs-review`→`in-review`), and **spawns a fresh-context
+review subagent** (the `code-reviewer.md` role) to do the adversarial read — so each review is
+clean-context while the session itself stays thin (the planner's read-only-fan-out pattern, applied to
+review) → verdict **`reviewed-pass`** or **`changes-requested`** (each removes `in-review`), posted as
+a real `gh pr review` **plus** a durable line in `planning/status/reviewer.md` — which `merge-watch.sh`
+**already** surfaces as a `STATUS:` line, so the planner/human see it on a channel they already watch.
+With one reviewer per project, `in-review` is a *soft* claim whose real job is crash-recovery: on
+resume the reviewer re-scans `needs-review ∪ in-review` and resumes the oldest unfinished PR (with >1
+reviewer the same label becomes a true mutex). **The reviewer session is the authoritative gate; the
+worker's self-spawned review degrades to an optional cheap pre-push lint, no longer the gate.** It is
+also where a **critical trigger** (order-execution, risk limits/sizing/kill-switch,
+data-fidelity/indicator math, schema/migrations, auth/secrets) is detected and the human told to run
+**`/code-review ultra`** before merge. On `changes-requested`, the reviewer (auto mode) does **not**
+message the worker — it labels + comments, and the **planner** re-dispatches the worker (planner→worker
+push). *(Phase-9 — promoting `review-before-push`'s *full path* into a standing orchestration role.)*
+
 **Both tiers fan out** to subagents and background tasks — but to opposite ends: a **planner's** fan-out is
 **read-only** (research, explore, analyze — to plan better) and produces nothing buildable; a **worker's**
 fan-out is what actually **writes and builds**, always inside its worktree. Building never happens in a planning
@@ -624,8 +655,14 @@ unassigned`). The `owner` is a **stable worker handle** (e.g. `worker-2`, or a s
 **live runtime session id** = its `$CLAUDE_CODE_SESSION_ID` (capture by running `echo "$CLAUDE_CODE_SESSION_ID"` and pasting the literal output — never guessed, never a CCD/dispatch id), the exact key the resume hook matches. Worker sessions are **stood up first and stand by**,
 so the planner reads their ids and binds them at assign time; if a worker later gets a fresh session, only its
 `session` id is re-bound to the same handle. A worker does its assigned task in its worktree → commits the feature branch → pushes + opens a PR
-→ an **automated independent review** posts findings (the worker spawns a fresh-context reviewer subagent — it can't launch a `/code-review` slash-command itself; the review escalates → **`/code-review ultra`** for the human if the diff is large/risky/money-correctness-critical) → **the human VERIFIES the live feature** (findings in
-hand) → the **worker runs `gh pr merge` in its OWN session** (the planner never merges for it) → `git pull` the main checkout (so the next worker branches/rebases off current `main`, not a stale base) → `/wrap` → `/compact`. **The task moves between files as its state changes — the file *is* the
+**labeled `needs-review`** (an optional quick self-check first; the worker no longer spawns the *gate*
+review) → the **reviewer session** independently reviews it (claims `in-review` → fresh review subagent
+→ `reviewed-pass` or `changes-requested`; on `changes-requested` the planner re-dispatches the worker —
+see *The reviewer role* above; critical triggers escalate → **`/code-review ultra`** for the human) →
+**the human VERIFIES the live feature** (the review in hand) and gives the merge go-ahead → the
+**worker runs `gh pr merge` in its OWN session** (the planner never merges for it; a **`merge-gate` hook
+denies the merge unless the PR carries `reviewed-pass`**, so unreviewed code can't reach `main` — the
+human still gives the final go) → `git pull` the main checkout (so the next worker branches/rebases off current `main`, not a stale base) → `/wrap` → `/compact`. **The task moves between files as its state changes — the file *is* the
 state:** `planning/todo.md` (pending; each entry tagged `owner: <handle> · session: <uuid>`) → **the planner** (the *single writer* of `planning/*.md`) moves the entry, **at dispatch**, into
 `planning/progress.md` (in-progress — the live board: owner · session · branch · status) → on merge the planner moves it into `memory/completed-tasks.md` (the done archive, read at wrap/audit, never at task start). On resume, the
 post-compact hook surfaces this session's id; the session claims the entry whose **`session:` matches that id**
@@ -638,7 +675,7 @@ never grabs unassigned work or another session's task.
 
 **Post-merge is planner-triggered — a PR merge fires no native hook event.** Each planner session runs a background **merge-watch** for its project (`scripts/merge-watch.sh <repo>`, polling `gh pr list --state merged`). The worker ran `gh pr merge` in its own session (after the human's verify) — the planner **only watches** for the merge, **never merging another session's PR**. A companion **`worker-monitor.sh`** tails the worker session transcripts (`.jsonl`) for live handoff signals (*@planner · ready to merge · MERGED PR · UNBLOCK · BLOCKER · blocked:*), so the planner notices a worker needs it without polling each session. On a newly-merged PR the planner (a) moves the task `progress.md → memory/completed-tasks.md` (the board move is the planner's — `planning/*.md` is single-writer), and (b) nudges the owning worker: *merged → run `/wrap` (memory + non-board docs + commit only) → prompt the human to `/compact`*. **Keep that nudge SHORT — `/wrap` front-and-center, nothing competing:** a long nudge (extra explainer/thanks) makes the worker do an ad-hoc memory save instead of invoking the `/wrap` *skill*, so the compact gate never clears (a `/wrap` sent as text doesn't auto-run — the worker must recognize and invoke it; human fallback: type `/wrap` in the worker session). So a **worker's `/wrap` never touches the queue board** (the hook denies it regardless) — the planner already moved it. *(merge-watch + the companion worker-monitor live in the planner session and are **background — they do NOT survive a Claude Desktop restart or `/compact`, and can die mid-session to an unexplained external kill**, so the planner **(re)starts them at session start AND re-checks every turn — restarting any that isn't running** (not just on resume); no native global daemon, since nudging a worker's `/wrap` needs the planner/CCD in the loop. **Never trust the background watch alone:** whenever a worker is mid-PR the planner ALSO foreground-polls `gh pr list --state merged` itself each turn, so a dead merge-watch can't silently drop a merge.)*
 
-**Worker→planner is *pull*, not push — a worker never messages the planner.** Cross-session messaging needs human confirmation, so it is **unavailable in an auto/worker session** (a worker that tries just stalls). The planner instead *reads* two signals the worker leaves on disk: the worker's **PR** (the done signal — `merge-watch.sh` already polls it) and a worker-owned **`planning/status/<owner>.md`** line for *blocked / mid-task / needs-input* states. That status file lives under `planning/` but is **worker-writable** — it is **not** the single-writer board (`planning-single-writer.sh` gates only `todo.md`/`progress.md`), so writing it always works, even in auto mode; `merge-watch.sh` emits a line whenever one appears or changes. (Planner→worker still uses native cross-session messaging — the planner is supervised, so its sends are confirmable; only the worker→planner direction is pull.)
+**Worker→planner is *pull*, not push — a worker never messages the planner.** Cross-session messaging needs human confirmation, so it is **unavailable in an auto/worker session** (a worker that tries just stalls). The planner instead *reads* two signals the worker leaves on disk: the worker's **PR** (the done signal — `merge-watch.sh` already polls it) and a worker-owned **`planning/status/<owner>.md`** line for *blocked / mid-task / needs-input* states. That status file lives under `planning/` but is **worker-writable** — it is **not** the single-writer board (`planning-single-writer.sh` gates only `todo.md`/`progress.md`), so writing it always works, even in auto mode; `merge-watch.sh` emits a line whenever one appears or changes. (Planner→worker still uses native cross-session messaging — the planner is supervised, so its sends are confirmable; only the worker→planner direction is pull.) **The reviewer→planner / reviewer→human direction is pull too** — the reviewer (auto mode) signals only via PR labels + `planning/status/reviewer.md`, never messaging. So the model is now three-sided but the rule is unchanged: **only the planner pushes messages; everyone else signals on disk + labels.**
 
 **Verify UIs with Preview first.** A worker checks its own running web UI with the per-session **Preview**
 (`mcp__Claude_Preview__*`) — DOM-aware, not a shared resource — and falls back to **computer-use** (the one
@@ -647,7 +684,11 @@ physical mouse/screen) only when nothing else can do the job.
 **Enforced, not just documented** — fail-open guardrail hooks back the rules: *main-protection* (no
 code commits on `main` in a project marked `.orchestrated`), *planner-file-lock* (a `.planner` session edits
 `.md` only, runs no builds), *planning-single-writer* (in an `.orchestrated` project only the planner edits `planning/todo.md`+`progress.md` — a worker can't race the queue board), *guide-readonly* (only the guide-setup session may edit `~/Developer/guide-setup`;
-a worker that mounts it read-only is blocked from writing it), and a *computer-use mutex* (one session drives
+a worker that mounts it read-only is blocked from writing it), *merge-gate* (a worker's `gh pr merge`
+is denied unless the PR carries `reviewed-pass` — no code reaches `main` unreviewed; fails open on any
+`gh` error, so the discipline is the human's and the hook is only the backstop), *reviewer-file-lock*
+(a `.reviewer` session edits no project code — Read/`gh`/read-only `git`/test-runs only, writing just
+`review/` + `planning/status/reviewer.md`), and a *computer-use mutex* (one session drives
 the physical screen at a time).
 *(Phase-8 personalization; the live, environment-specific operating-model detail lives in the dev-env memory.)*
 
