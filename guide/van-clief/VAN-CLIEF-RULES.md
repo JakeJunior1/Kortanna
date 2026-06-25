@@ -688,7 +688,8 @@ a worker that mounts it read-only is blocked from writing it), *merge-gate* (a w
 is denied unless the PR carries `reviewed-pass` — no code reaches `main` unreviewed; fails open on any
 `gh` error, so the discipline is the human's and the hook is only the backstop), *reviewer-file-lock*
 (a `.reviewer` session edits no project code — Read/`gh`/read-only `git`/test-runs only, writing just
-`review/` + `planning/status/reviewer.md`), and a *computer-use mutex* (one session drives
+`review/` + `planning/status/reviewer.md`; its `.reviewer` marker is **session-bound** — holds the
+reviewer's session id — so it gates only the reviewer, not the workers that share the project root), and a *computer-use mutex* (one session drives
 the physical screen at a time).
 *(Phase-8 personalization; the live, environment-specific operating-model detail lives in the dev-env memory.)*
 

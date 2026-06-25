@@ -28,6 +28,17 @@ use the worktree toggle). `~/Developer/guide-setup` is mounted **read-only** (th
 
 ## MANDATORY STARTUP SEQUENCE
 
+**Step 0 — Bind this session as the reviewer (do this FIRST).** You root at the project root — the SAME
+directory the workers use — so the `reviewer-file-lock` guard is **session-bound**: it restricts only the
+session whose id is written in the marker. Write yours, so the lock applies to *you* (review-only) without
+touching a worker at the same root:
+```
+echo "$CLAUDE_CODE_SESSION_ID" > .reviewer    # bind the marker to THIS session
+grep -qxF .reviewer .gitignore 2>/dev/null || echo .reviewer >> .gitignore   # session-local — never commit it
+```
+**Re-bind on resume:** a `/compact` or restart gives you a NEW session id, so re-run the `echo` — else the
+lock silently stops protecting you. (An unbound/empty `.reviewer` gates nobody — it never bricks a worker.)
+
 **Step 1 — Global context:** Read the project's `CLAUDE.md` (Layer 1) and its `CONTEXT.md` — know the
 architecture and the security boundaries before forming opinions about any code.
 
