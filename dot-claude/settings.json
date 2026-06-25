@@ -36,6 +36,21 @@
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/planner-file-lock.sh\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/merge-gate.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/reviewer-file-lock.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/verifier-file-lock.sh\"",
+            "timeout": 10
           }
         ]
       },
@@ -55,6 +70,16 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/planning-single-writer.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/reviewer-file-lock.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/verifier-file-lock.sh\"",
             "timeout": 10
           }
         ]
@@ -97,6 +122,27 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/post-compact-resume.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/monitor-reminder.sh\" start",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/monitor-reminder.sh\" check",
+            "timeout": 10
           }
         ]
       }

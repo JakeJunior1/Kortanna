@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Global PreToolUse(Edit|Write|NotebookEdit|Bash) guard for the REVIEWER session only. The reviewer
+# Global PreToolUse(Edit|Write|MultiEdit|NotebookEdit|Bash) guard for the REVIEWER session only. The reviewer
 # reviews — it edits NO project code and NEVER merges (the worker merges in its own session). Active
 # ONLY for the reviewer session whose id is bound in the `.reviewer` marker. The reviewer roots at the
 # PROJECT root (to review that project's PRs) — the SAME root the workers use, unlike the dev-root-rooted
@@ -32,7 +32,7 @@ tool="$(printf '%s' "$input" | "$JQ" -r '.tool_name // empty' 2>/dev/null || tru
 deny() { "$JQ" -n --arg r "$1" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'; }
 
 case "$tool" in
-  Edit|Write|NotebookEdit)
+  Edit|Write|MultiEdit|NotebookEdit)
     fp="$(printf '%s' "$input" | "$JQ" -r '.tool_input.file_path // .tool_input.notebook_path // empty' 2>/dev/null || true)"
     [ -n "$fp" ] || exit 0
     # Reject any traversal outright (a `..` segment could resolve back into code).

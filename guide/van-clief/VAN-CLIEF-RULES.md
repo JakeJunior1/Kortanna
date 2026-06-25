@@ -594,7 +594,10 @@ writes only `.md`: the plan, `CLAUDE.md`/`CONTEXT.md`, the `planning/todo.md` qu
 **sole task-assigner**) + **N worker sessions** (each anchored at the project root = the main-branch
 checkout, each owning a slice, each working in its own gitignored `branches/<task>/` worktree) **+
 optionally one reviewer session** (a standing, review-only role that independently reviews each
-worker's pushed PR *before* the human verifies — see *The reviewer role* below). Production
+worker's pushed PR *before* the human verifies — see *The reviewer role* below) **+ optionally
+one verifier session** (a standing, verify-only role that independently checks a high-stakes
+*claim/answer* the planner produces, before the human acts on it — *answer-discipline §3's full path*;
+see *The verifier role* below). Production
 **code reaches `main` only via PR merge** — never a direct commit; the planner commits brain docs (`.md`)
 to main directly. A worker also mounts **`~/Developer/guide-setup` as a *read-only* additional directory** (its
 execution-worker role prompt + the method live there) — **never the whole dev root** (that would unseal other
@@ -641,6 +644,36 @@ data-fidelity/indicator math, schema/migrations, auth/secrets) is detected and t
 message the worker — it labels + comments, and the **planner** re-dispatches the worker (planner→worker
 push). *(Phase-9 — promoting `review-before-push`'s *full path* into a standing orchestration role.)*
 
+**The verifier role (the fourth session) — an independent check of a high-stakes *claim*, before the
+human acts on it.** Where the reviewer is the standing full path of `review-before-push` (independent
+review of **code**), the verifier is the standing full path of **answer-discipline §3** (independent
+verification of a high-stakes **answer**) — a number/decision the human will act on, a
+security/correctness/money claim, or a recent-news/research answer. It is **not** a second planner: it
+assigns nothing and builds nothing, it only checks. One per project, stood up beside the planner +
+reviewer, **verify-only**, rooted at the project root (resume-safe *by rooting*, not the worktree
+toggle; mounts `~/Developer/guide-setup` read-only). It **edits no code and never messages** — like the
+reviewer it runs in **auto mode**, and its verdict **relays back to the planner session** (the one
+session the human lives in) via `planning/status/verifier.md`, which `merge-watch.sh` already surfaces as
+a `STATUS:` line. The state rail is **on-disk**, not PR labels (a claim isn't code): the **planner mints
+a claim while planning**, writing `planning/claims/<id>.md` (`<id>` = `[A-Za-z0-9._-]+`) — frontmatter
+`claim-id · status · verify-by · created`, body = the **assertion** + its **inputs** (sources/data) but
+**deliberately not the originator's reasoning**, so the check can't degrade into a rubber-stamp. The verifier's **`verifier-watch.sh`** (sibling of
+`reviewer-watch.sh`) polls `planning/claims/*.md` for `status: needs-verify`, and per claim **spawns a
+fresh *blinded* `claim-verifier` subagent** — given the claim + inputs + verify-by only, never the
+originator's conclusion — which **re-derives from primary sources** and returns CONFIRMED / REFUTED /
+INCONCLUSIVE with citations. The verifier writes only `verify/verdict-<id>.md` + its status line; the
+**planner owns the claim's status** (the read-only-on-`planning/` verifier never mutates it), flipping it
+to `verified`/`refuted`/`blocked` on reading the verdict. The verifier's **status line is the durable
+done-marker** (the signal `merge-watch` surfaces) — a `needs-verify` claim with **no status line** is
+unfinished work the watch keeps surfacing, *even if a verdict file already exists*, so a not-CONFIRMED
+result can't silently rot (crash-recovery + fail-closed in one). It is **fail-closed**: a claim it cannot independently confirm
+(missing/unreachable source, stale data, ambiguity) returns **REFUTED/BLOCKED, never a silent pass**, and
+a `needs-verify` claim left without a verdict — or a `refuted` one — is surfaced loudly on that same
+`STATUS:` channel, so an unverified high-stakes claim can't silently rot. The verdict reaches the
+**human/planner** — a different session/context than wrote the claim, never a single self-certifying
+author. *(Phase-9 — promoting answer-discipline §3's full path into a standing orchestration role, the
+answer-side twin of the reviewer.)*
+
 **Both tiers fan out** to subagents and background tasks — but to opposite ends: a **planner's** fan-out is
 **read-only** (research, explore, analyze — to plan better) and produces nothing buildable; a **worker's**
 fan-out is what actually **writes and builds**, always inside its worktree. Building never happens in a planning
@@ -675,7 +708,7 @@ never grabs unassigned work or another session's task.
 
 **Post-merge is planner-triggered — a PR merge fires no native hook event.** Each planner session runs a background **merge-watch** for its project (`scripts/merge-watch.sh <repo>`, polling `gh pr list --state merged`). The worker ran `gh pr merge` in its own session (after the human's verify) — the planner **only watches** for the merge, **never merging another session's PR**. A companion **`worker-monitor.sh`** tails the worker session transcripts (`.jsonl`) for live handoff signals (*@planner · ready to merge · MERGED PR · UNBLOCK · BLOCKER · blocked:*), so the planner notices a worker needs it without polling each session. On a newly-merged PR the planner (a) moves the task `progress.md → memory/completed-tasks.md` (the board move is the planner's — `planning/*.md` is single-writer), and (b) nudges the owning worker: *merged → run `/wrap` (memory + non-board docs + commit only) → prompt the human to `/compact`*. **Keep that nudge SHORT — `/wrap` front-and-center, nothing competing:** a long nudge (extra explainer/thanks) makes the worker do an ad-hoc memory save instead of invoking the `/wrap` *skill*, so the compact gate never clears (a `/wrap` sent as text doesn't auto-run — the worker must recognize and invoke it; human fallback: type `/wrap` in the worker session). So a **worker's `/wrap` never touches the queue board** (the hook denies it regardless) — the planner already moved it. *(merge-watch + the companion worker-monitor live in the planner session and are **background — they do NOT survive a Claude Desktop restart or `/compact`, and can die mid-session to an unexplained external kill**, so the planner **(re)starts them at session start AND re-checks every turn — restarting any that isn't running** (not just on resume); no native global daemon, since nudging a worker's `/wrap` needs the planner/CCD in the loop. **Never trust the background watch alone:** whenever a worker is mid-PR the planner ALSO foreground-polls `gh pr list --state merged` itself each turn, so a dead merge-watch can't silently drop a merge.)*
 
-**Worker→planner is *pull*, not push — a worker never messages the planner.** Cross-session messaging needs human confirmation, so it is **unavailable in an auto/worker session** (a worker that tries just stalls). The planner instead *reads* two signals the worker leaves on disk: the worker's **PR** (the done signal — `merge-watch.sh` already polls it) and a worker-owned **`planning/status/<owner>.md`** line for *blocked / mid-task / needs-input* states. That status file lives under `planning/` but is **worker-writable** — it is **not** the single-writer board (`planning-single-writer.sh` gates only `todo.md`/`progress.md`), so writing it always works, even in auto mode; `merge-watch.sh` emits a line whenever one appears or changes. (Planner→worker still uses native cross-session messaging — the planner is supervised, so its sends are confirmable; only the worker→planner direction is pull.) **The reviewer→planner / reviewer→human direction is pull too** — the reviewer (auto mode) signals only via PR labels + `planning/status/reviewer.md`, never messaging. So the model is now three-sided but the rule is unchanged: **only the planner pushes messages; everyone else signals on disk + labels.**
+**Worker→planner is *pull*, not push — a worker never messages the planner.** Cross-session messaging needs human confirmation, so it is **unavailable in an auto/worker session** (a worker that tries just stalls). The planner instead *reads* two signals the worker leaves on disk: the worker's **PR** (the done signal — `merge-watch.sh` already polls it) and a worker-owned **`planning/status/<owner>.md`** line for *blocked / mid-task / needs-input* states. That status file lives under `planning/` but is **worker-writable** — it is **not** the single-writer board (`planning-single-writer.sh` gates only `todo.md`/`progress.md`), so writing it always works, even in auto mode; `merge-watch.sh` emits a line whenever one appears or changes. (Planner→worker still uses native cross-session messaging — the planner is supervised, so its sends are confirmable; only the worker→planner direction is pull.) **The reviewer→planner / reviewer→human direction is pull too** — the reviewer (auto mode) signals only via PR labels + `planning/status/reviewer.md`, never messaging. **The verifier→planner direction is pull too** — the verifier (auto mode) signals only via its on-disk verdict (`verify/verdict-<id>.md`) + `planning/status/verifier.md`, never messaging. So the model is now four-sided but the rule is unchanged: **only the planner pushes messages; everyone else signals on disk + labels.**
 
 **Verify UIs with Preview first.** A worker checks its own running web UI with the per-session **Preview**
 (`mcp__Claude_Preview__*`) — DOM-aware, not a shared resource — and falls back to **computer-use** (the one
@@ -690,7 +723,10 @@ is denied unless the PR carries `reviewed-pass` — no code reaches `main` unrev
 (a `.reviewer` session edits no project code — Read/`gh`/read-only `git`/test-runs only, writing just
 `review/` + `planning/status/reviewer.md`; its `.reviewer` marker is **session-bound** — holds the
 reviewer's session id — so it gates only the reviewer, not the workers that share the project root),
-*monitor-reminder* (a `.planner`/`.reviewer` session is reminded at every session-start — and nagged
+*verifier-file-lock* (the answer-side twin — a `.verifier` session edits no project code, writing only
+`verify/` + `planning/status/verifier.md`; its `.verifier` marker is likewise **session-bound**, so it
+gates only the verifier, not the workers/reviewer that share the project root),
+*monitor-reminder* (a `.planner`/`.reviewer`/`.verifier` session is reminded at every session-start — and nagged
 each turn a monitor is down — to (re)start its background monitors, which silently die on
 compact/restart/external-kill; it **reminds, never auto-starts** — a hook-spawned monitor is detached,
 so its stream can't reach the session — making the §9 "restart every turn" discipline enforced, not just

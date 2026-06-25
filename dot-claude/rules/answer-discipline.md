@@ -22,6 +22,12 @@ diverged). Get an independent check from FRESH context (a separate session, or a
 did NOT produce the original), re-grounded in primary sources (§1), and reconcile before presenting. This is
 review-before-push for ANSWERS, not just code.
 
+**Orchestrated?** This is the standing **verifier** role (VAN-CLIEF §9) — the *full path*: the planner
+mints the claim (`planning/claims/<id>.md`), a **blinded** verifier re-derives it from primary sources,
+**fail-closed** (cannot-confirm ⇒ REFUTED/BLOCKED). Solo, you ARE the verifier — spawn the blinded
+subagent yourself (the *light path*). Same split as `review-before-push` (a standing reviewer session vs.
+a self-spawned reviewer subagent).
+
 ## 4. Never accept your first answer — push it
 The first solution is rarely the best. Before presenting, attack it: "can I prove this works?", "knowing
 what I know now, is there a more correct / more sophisticated version?" Surface the stronger alternative

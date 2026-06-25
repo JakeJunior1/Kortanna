@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Global PreToolUse(Edit|Write|NotebookEdit|Bash) guard for the PLANNING session only. The planner
+# Global PreToolUse(Edit|Write|MultiEdit|NotebookEdit|Bash) guard for the PLANNING session only. The planner
 # coordinates (writes the plan, CLAUDE.md / CONTEXT / planning(todo,progress) / memory) but never
 # writes or runs CODE — that's the workers' job. Active ONLY when the session root carries a
 # `.planner` marker; every other session (workers, the guide repo, your projects, normal work)
@@ -23,7 +23,7 @@ tool="$(printf '%s' "$input" | "$JQ" -r '.tool_name // empty' 2>/dev/null || tru
 deny() { "$JQ" -n --arg r "$1" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'; }
 
 case "$tool" in
-  Edit|Write|NotebookEdit)
+  Edit|Write|MultiEdit|NotebookEdit)
     fp="$(printf '%s' "$input" | "$JQ" -r '.tool_input.file_path // .tool_input.notebook_path // empty' 2>/dev/null || true)"
     [ -n "$fp" ] || exit 0
     printf '%s' "$fp" | grep -iqE '\.md$' && exit 0    # markdown = the planner's brain docs → allow

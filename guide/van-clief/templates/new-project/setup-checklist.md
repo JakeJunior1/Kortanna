@@ -85,6 +85,12 @@ brain docs (`*.md`) to main directly.
   `~/Developer/guide-setup` **read-only**, give it `van-clief/templates/execution-workers/reviewer-session.md`
   as its role prompt, and let it arm `reviewer-watch.sh`. It reviews each worker's `needs-review` PR
   independently before you verify+merge. Auto-mode-safe (review-only, signals via labels — never messages).
+- Optionally stand up the **verifier** session (the fourth role): root it at the project root, mount
+  `~/Developer/guide-setup` **read-only**, give it `van-clief/templates/execution-workers/verifier-session.md`
+  as its role prompt, and let it arm `verifier-watch.sh`. It independently (blinded) re-derives each
+  high-stakes **claim** the planner mints at `planning/claims/<id>.md` — **no labels needed (on-disk
+  state)** — and writes a verdict to `verify/verdict-<id>.md` + a `planning/status/verifier.md` line you
+  see in the planner. Auto-mode-safe (verify-only, signals on disk — never messages).
 - Per-task loop, worker rules, Preview-first: the project `CONTEXT.md` (stamped from `CONTEXT.md.template`) carries the worker-facing summary; the canonical spec is `VAN-CLIEF-RULES.md` §9. (One fact, one location — don't restate the loop here.)
 - Workers verify UIs with **Preview** (`mcp__Claude_Preview__*`) first; computer-use only when Preview can't.
 - Code scaffolding is handled by worker agents (`/init`, community skills, or the brief's instructions).
