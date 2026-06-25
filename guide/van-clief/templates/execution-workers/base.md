@@ -112,6 +112,11 @@ operator may have kicked this session with the native **`/goal <condition>`** co
 `Verify-by` + a turn-cap), which loops you autonomously across turns until a separate evaluator confirms it. If a
 goal is active, keep going until it clears — but the loop above is what you do regardless.
 
+**Give the check away where you can** — have a fresh subagent, a test, or the reviewer verify your output,
+not just your own inspection; independent verification catches what self-review misses (the operator's #1
+habit). And for a **big or multi-part task, split it across subagents / a workflow** rather than grinding it
+all in one thread (§7 tool-ladder; your dispatch may say so explicitly) — fan-out is how a worker builds at scale.
+
 ---
 
 ## Quality Gate (mandatory before reporting done)
@@ -120,6 +125,10 @@ goal is active, keep going until it clears — but the loop above is what you do
 2. Evidence before assertions — do not claim something passes without running it
 3. No secrets in code — environment variables only
 4. No absolute paths in user-facing output — use relative paths
+5. **Tighten before you hand off** — run a cleanup/quality pass on your changes before opening the PR.
+   *Claude:* the native **`/simplify`** command (cleanup · quality · efficiency in one agent pass).
+   *Model-agnostic:* a deliberate self-review for dead code, duplication, oversize. The reviewer is
+   **read-only** and can't do this for you — ship a tight diff.
 
 ---
 

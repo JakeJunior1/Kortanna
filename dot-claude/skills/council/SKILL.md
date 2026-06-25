@@ -85,9 +85,18 @@ const rankings = await parallel(MEMBERS.map(m => () =>
         { label:`rank:${m.id}`, phase:'Rank', schema:RANK })))
 
 phase('Kortanna')
-return await agent(
+const verdict = await agent(
   `You are KORTANNA, the head of the council (the chair). Synthesize ONE recommendation from the council's opinions and their anonymized rankings. Under 250 words. Structure exactly:\nDECISION · PRIMARY RATIONALE · KEY RISK · NEXT 7 DAYS\nThen a final line — STRONGEST DISSENT: the single best objection, even though you ruled against it.\n\nOPINIONS:\n${panel}\n\nRANKINGS:\n${JSON.stringify(rankings.filter(Boolean))}`,
   { label:'kortanna', phase:'Kortanna', model:'opus', effort:'high' })
+
+// Return the chair's verdict PLUS each member's RAW take inline — so the full reasoning is visible, not
+// just the synthesis (the verdict already carries the STRONGEST DISSENT). For verdict-only, drop the
+// `members`/`rankings` keys from this return.
+return {
+  verdict,
+  members: MEMBERS.map((m, j) => opinions[j] ? { persona: m.id, ...opinions[j] } : { persona: m.id, error: 'no response' }),
+  rankings: rankings.filter(Boolean),
+}
 ```
 
 Pass the decision via the Workflow `args` (`{ question: "..." }`) or edit `QUESTION` in the script.
@@ -107,6 +116,10 @@ Pass the decision via the Workflow `args` (`{ question: "..." }`) or edit `QUEST
   directly and synthesize yourself. Same shape, less ceremony.
 
 ## Notes
+- **The result returns each member's RAW take + the blind rankings inline**, not just the chair's verdict —
+  so you see *what* each persona argued and *how* they ranked, not only the synthesis (the verdict still
+  leads with DECISION + STRONGEST DISSENT). Watch it live in `/workflows`; for verdict-only, drop the
+  `members`/`rankings` keys from the final return.
 - **A council *advises* — the human decides.** The verdict is a pressure-tested
   recommendation, not authorization to act. In a planning session this is a **read-only**
   fan-out (analysis, never building).
