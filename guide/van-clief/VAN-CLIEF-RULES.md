@@ -689,7 +689,12 @@ is denied unless the PR carries `reviewed-pass` — no code reaches `main` unrev
 `gh` error, so the discipline is the human's and the hook is only the backstop), *reviewer-file-lock*
 (a `.reviewer` session edits no project code — Read/`gh`/read-only `git`/test-runs only, writing just
 `review/` + `planning/status/reviewer.md`; its `.reviewer` marker is **session-bound** — holds the
-reviewer's session id — so it gates only the reviewer, not the workers that share the project root), and a *computer-use mutex* (one session drives
+reviewer's session id — so it gates only the reviewer, not the workers that share the project root),
+*monitor-reminder* (a `.planner`/`.reviewer` session is reminded at every session-start — and nagged
+each turn a monitor is down — to (re)start its background monitors, which silently die on
+compact/restart/external-kill; it **reminds, never auto-starts** — a hook-spawned monitor is detached,
+so its stream can't reach the session — making the §9 "restart every turn" discipline enforced, not just
+documented), and a *computer-use mutex* (one session drives
 the physical screen at a time).
 *(Phase-8 personalization; the live, environment-specific operating-model detail lives in the dev-env memory.)*
 
