@@ -1,0 +1,9 @@
+# Rule Candidates — {{PROJECT_NAME}}
+
+> Proposed **behavioral rules** awaiting graduation — recurring corrections worth promoting to a rule
+> (`~/.claude/rules/karpathy.md`, a project `CLAUDE.md`, or a rule file). `/wrap` **appends** a candidate
+> when a correction recurs (one dated line, never auto-applied); `/groom` **graduates** the proven ones
+> (copy up **and** delete down — one fact, one location) and prunes the rest. **Jake approves every
+> graduation; nothing here is auto-authored.** (karpathy §5 — capture what compounds.)
+
+- {{YYYY-MM-DD}} — <the recurring correction / the rule it implies> · seen: <where / how often> · → <target layer>

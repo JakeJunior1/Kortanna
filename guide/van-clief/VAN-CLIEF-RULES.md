@@ -668,7 +668,10 @@ fresh *blinded* `claim-verifier` subagent** — given the claim + inputs + verif
 originator's conclusion — which **re-derives from primary sources** and returns CONFIRMED / REFUTED /
 INCONCLUSIVE with citations. The verifier writes only `verify/verdict-<id>.md` + its status line; the
 **planner owns the claim's status** (the read-only-on-`planning/` verifier never mutates it), flipping it
-to `verified`/`refuted`/`blocked` on reading the verdict. The verifier's **status line is the durable
+to `verified`/`refuted`/`blocked` on reading the verdict, **then deleting the consumed
+`planning/claims/<id>.md` + `verify/verdict-<id>.md`** (if the claim changed a decision, record it in
+`planning/decisions/` first; the `planning/status/verifier.md` log stays) so they don't bloat — the same
+deliberate teardown as a merged worktree. The verifier's **status line is the durable
 done-marker** (the signal `merge-watch` surfaces) — a `needs-verify` claim with **no status line** is
 unfinished work the watch keeps surfacing, *even if a verdict file already exists*, so a not-CONFIRMED
 result can't silently rot (crash-recovery + fail-closed in one). It is **fail-closed**: a claim it cannot independently confirm

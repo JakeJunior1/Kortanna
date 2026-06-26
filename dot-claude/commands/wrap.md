@@ -14,6 +14,8 @@ Do this:
 
    **Planner sessions also wrap the global brain.** If you're a planning/orchestrator session managing projects from `~/Developer`, additionally distill any **generalizable** orchestration wisdom from this session into the global **`~/Developer/memory/`** (`primer` · `lessons` · `decisions`) — only what helps across **any** project (how you orchestrate; a reusable pattern; a corrected approach), **never** project-specific state (that stays in the managed project's own `memory/`); thin organizing pointers are fine — keep it lean and hand-curated. `~/Developer` is **not a git repo** → this is a file save, not a commit (the precompact gate fails open there — VAN-CLIEF §9).
 
+   **Queue what compounds — capture the candidate, never author it (karpathy §5).** If a **correction recurred** this session (the same mistake/guidance hit more than once) or a **procedure/role kept repeating**, append a ONE-LINE dated candidate (**creating the file if absent**) — a behavioral rule → `memory/rule-candidates.md`, a skill/subagent/abstraction → `memory/improvements-queue.md` (planner sessions also append to the global-brain `~/Developer/memory/` copies). Don't write the rule/skill itself — just queue it; `/groom` later reviews + (on your approval) graduates it. Skip silently when nothing recurred.
+
 4. **Commit + push** everything above (follow the repo's branch convention — this repo commits to its working branch).
 
 5. **Clear the compact gate** so `/compact` can proceed next. The gate is per-session + worktree-safe

@@ -116,9 +116,11 @@ Pass the decision via the Workflow `args` (`{ question: "..." }`) or edit `QUEST
   directly and synthesize yourself. Same shape, less ceremony.
 
 ## Notes
-- **The result returns each member's RAW take + the blind rankings inline**, not just the chair's verdict —
-  so you see *what* each persona argued and *how* they ranked, not only the synthesis (the verdict still
-  leads with DECISION + STRONGEST DISSENT). Watch it live in `/workflows`; for verdict-only, drop the
+- **After the workflow returns, PRINT each member's raw take + the blind rankings INLINE in your reply** —
+  not just the chairman's verdict. The script returns `{verdict, members, rankings}` precisely so you can
+  render them; relaying only the synthesis is the #1 way the council *looks* broken (the takes ran but
+  never showed). Show *what* each persona argued and *how* they ranked (the verdict still leads with
+  DECISION + STRONGEST DISSENT). Watch it live in `/workflows`; for verdict-only, drop the
   `members`/`rankings` keys from the final return.
 - **A council *advises* — the human decides.** The verdict is a pressure-tested
   recommendation, not authorization to act. In a planning session this is a **read-only**

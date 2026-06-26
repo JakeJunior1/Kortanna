@@ -82,7 +82,9 @@ invent claims, grab a worker's task, or touch the board.
 5. **Signal — write your status line:** ONE durable line to `planning/status/verifier.md`, e.g.
    `claim <id> VERIFIED · <one-line>` · `claim <id> REFUTED · <contradiction>` ·
    `claim <id> INCONCLUSIVE/BLOCKED · <what's missing>`
-   (the planner's `merge-watch.sh` surfaces this as a `STATUS:` line — the channel the human watches). You
+   (the planner's `merge-watch.sh` surfaces only a status file's **first line** — so write the **newest
+   verdict on TOP**, the running log beneath it, keeping that first line current; that `STATUS:` ping is the
+   channel the human watches). You
    do **not** edit the claim file's `status:` — the **planner** flips it to `verified`/`refuted`/`blocked`
    on reading your verdict (it owns `planning/`). Your **status line is the done-marker** — write it as
    your **final, durable act** (it is what `merge-watch` surfaces); a verdict file alone does **not** count,

@@ -1,0 +1,9 @@
+# Improvements Queue — {{PROJECT_NAME}}
+
+> Proposed **skills / subagents / abstractions** + other improvements awaiting approval — a recurring
+> *procedure* worth a skill, a recurring *role* worth a subagent-type, or a tooling/process improvement.
+> `/wrap` **appends** a candidate when a procedure/role recurs; `/groom` reviews and — **on Jake's approval
+> only** — authors it (`skill-creator` / a `~/.claude/agents/<name>.md` def) and clears it. **Never
+> auto-authored.** (karpathy §5.)
+
+- {{YYYY-MM-DD}} — <skill | subagent | improvement> — <what it would cover> · seen: <where / how often>

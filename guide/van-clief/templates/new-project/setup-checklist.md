@@ -28,7 +28,9 @@ board`}` · `memory/{primer.md · decisions.md}` (the durable record native dist
 stamp from `van-clief/templates/new-project/` only when the project needs them: `srd.md`/`specs/`, `architecture`,
 `roadmap.md`, `planning/plans/` (durable saved plans — `mkdir planning/plans`, then stamp
 `planning/plan.md.template` → `planning/plans/<slug>.md` per planning pass; `todo.md` routes to it),
-`planning/research/`, `planning/status/` (worker→planner pull-channel; auto-created on first ping), `memory/{lessons,completed-tasks}.md`.
+`planning/research/`, `planning/status/` (worker→planner pull-channel; auto-created on first ping),
+`memory/{lessons,completed-tasks,rule-candidates,improvements-queue}.md` (the last two = the `/wrap`-fed
+proposal backlog `/groom` graduates from).
 
 ### 2. Initialize git
 ```bash

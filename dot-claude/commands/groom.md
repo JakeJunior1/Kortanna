@@ -26,17 +26,21 @@ The *dream pass* — keep memory lean and let lessons compound (Van Clief §9). 
 capture → the project's in-repo `memory/` — is `/wrap`'s job; `/groom` is the periodic cross-layer consolidation
 + upward graduation, not the per-session capture.)**
 - **Consolidate:** re-read the memory layers — per-project **native auto-memory** (capture) + the project's
-  **in-repo `memory/`** (`primer`/`decisions`/`lessons` durable record) · global `~/Developer/memory/` ·
+  **in-repo `memory/`** (`primer`/`decisions`/`lessons` + the `rule-candidates`/`improvements-queue` backlog, harvested below) · global `~/Developer/memory/` ·
   `~/.claude/rules/` — and **merge duplicates, resolve contradictions, prune stale entries, refresh the
   index.** Memory bloats like a Current State block — trim it.
 - **Graduate lessons — copy up *and* delete down:** when a lesson has proven universal (holds in every
   project/tool), promote it into the higher layer (`~/.claude/rules/karpathy.md`, or a project `CLAUDE.md`)
   **and remove it from the lower layer.** Leaving the duplicate behind is what causes drift — one fact, one location.
-- **Propose reusable abstractions (suggest, never auto-create):** if a repeated *procedure* emerged worth
-  reusing, surface it as a **skill candidate** (`skill-creator` / `writing-skills`); if a repeated *role*
-  emerged — a fresh-context agent you keep re-prompting the same way (e.g. an adversarial reviewer) — surface it
-  as a **subagent-type candidate** (a `~/.claude/agents/<name>.md` definition). Name what each would cover;
-  **The operator approves before anything is authored.** No auto-generated, unreviewed skills or agents.
+- **Harvest the proposal backlog `/wrap` fed, then graduate (suggest, never auto-create):** read
+  `memory/rule-candidates.md` (proposed rules) + `memory/improvements-queue.md` (proposed
+  skills/subagents/abstractions) — the per-session candidates `/wrap` queued — plus the global-brain copies
+  (`~/Developer/memory/`). For each that's **proven out** (recurred enough to be worth it), graduate it: a
+  rule → `~/.claude/rules/karpathy.md` (or a rule file); a *procedure* → a **skill** (`skill-creator` /
+  `writing-skills`); a recurring *role* → a **subagent-type** (`~/.claude/agents/<name>.md`). **De-dupe across
+  the project + global copies before graduating, and clear the entry from BOTH** (one-fact-one-location).
+  Also surface any NEW candidate not yet queued. Name what each covers; **the operator approves before anything is
+  authored** — no auto-generated, unreviewed rules/skills/agents.
 - **Unattended run = report only:** flag graduation candidates, skill candidates, and bloat as findings; never
   apply them without the operator (same rule as the system audit below).
 

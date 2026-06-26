@@ -86,7 +86,8 @@ invent work, never grab a worker's task or touch the board.
      `gh pr edit <n> --add-label changes-requested --remove-label in-review`
    - Either way, write ONE durable line to `planning/status/reviewer.md`, e.g.
      `PR #<n> reviewed-pass · <one-line summary>` or `PR #<n> changes-requested · <top blocker>`
-     (the planner's `merge-watch.sh` surfaces this as a `STATUS:` line — the channel the human watches).
+     (the planner's `merge-watch.sh` surfaces only a status file's **first line** — so write the **newest
+     verdict on TOP**, the running log beneath it; that `STATUS:` ping is the channel the human watches).
 7. **Critical-trigger escalation.** If the PR touches a **critical surface** — order-execution, risk
    limits/sizing/kill-switch, data-fidelity/indicator math, schema/migrations, auth/secrets — say so
    explicitly in the PR review and the status line: *"critical trigger (<which>) — human should run

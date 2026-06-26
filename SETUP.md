@@ -97,11 +97,13 @@ perplexity) with **your own** API keys. Never paste a key into a file you'll com
 [`manifest/credentials.md`](manifest/credentials.md) is the one-stop checklist of every value you supply
 (placeholders + the optional keys) — Claude Code registers keys via `claude mcp add`/plugin auth, not a `.env`.
 
-## 5. Weekly maintenance task (optional but recommended)
-`~/.claude/scheduled-tasks/guide-freshness-check/SKILL.md` is a **report-only** weekly dev-env health check
-(external currency + internal drift + `~/.claude` audit). To enable it, ask Claude Code to **create a weekly
-scheduled task** that runs the `guide-freshness-check` skill — or just run **`/freshness`** manually when you
-want a pulse. (It only writes two report files under `~/Developer`; it never changes anything on its own.)
+## 5. Weekly maintenance task (created by default)
+`~/.claude/scheduled-tasks/guide-freshness-check/SKILL.md` (placed in §1) is a **report-only** weekly dev-env
+health check (external currency + internal drift + `~/.claude` audit). **Register it now:** ask Claude Code to
+create a **weekly scheduled routine** that runs the `guide-freshness-check` skill — **skip if one already
+exists** (don't double-register). It only writes two report files under `~/Developer` and changes nothing on
+its own; remove it anytime by asking Claude Code to delete that routine. (Prefer an on-demand pulse instead?
+Run **`/freshness`**.)
 
 ## 6. Verify it's live
 Restart Claude Code, then check:
