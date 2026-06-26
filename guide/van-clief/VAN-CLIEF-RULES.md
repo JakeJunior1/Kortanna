@@ -589,8 +589,13 @@ days. Same **Tool-Ladder** instinct as §7 — don't stand up a session-swarm fo
 one session, and don't hand-roll either for what one subagent does. The rest of this section details rung (3).
 
 For a project run by **multiple concurrent sessions**, continuity also means two sessions never collide or
-redo each other's work. The model: **one planning session** (rooted at the dev root, plan/ask mode — it
-writes only `.md`: the plan, `CLAUDE.md`/`CONTEXT.md`, the `planning/todo.md` queue, memory; it is the
+redo each other's work. The model: **one planning session** (rooted at the dev root, **defaulting to plan mode** — set
+`permissions.defaultMode: "plan"` in `~/Developer/.claude/settings.json` (the dev-root only the planner
+roots at — workers don't inherit it: Claude Code loads only the cwd's `.claude/` + `~/.claude/`, **not**
+parent dirs, and a project-level setting overrides the user default; if a worker ever starts in plan mode,
+pin `defaultMode: "default"` in its project `.claude/settings.json`), or launch `claude --permission-mode plan`; it **starts each pass in plan mode** to explore +
+design, then ExitPlanMode to persist the plan + dispatch. It writes only `.md`: the saved plan
+(`planning/plans/`), `CLAUDE.md`/`CONTEXT.md`, the `planning/todo.md` queue, memory; it is the
 **sole task-assigner**) + **N worker sessions** (each anchored at the project root = the main-branch
 checkout, each owning a slice, each working in its own gitignored `branches/<task>/` worktree) **+
 optionally one reviewer session** (a standing, review-only role that independently reviews each
@@ -704,6 +709,18 @@ never grabs unassigned work or another session's task.
 
 **Every task is dispatched as a goal; a worker runs goal-driven by default.** The planner authors each task's **`Goal · Done-looks-like · Verify-by`** — a *verifiable* done-condition (a check the worker runs and surfaces). The worker treats it as a goal: restate the condition → execute → verify → **loop until it provably holds** → report with evidence. This is the **model-agnostic backbone** (works for any worker model). **Claude workers get an optional accelerator** — the native **`/goal <condition>`** command runs the worker *autonomously across turns* until a separate fast evaluator confirms the condition (the condition mirrors the `Verify-by` + a turn-cap like "…or stop after N turns"). A slash command **can't be delivered by cross-session dispatch** (it arrives wrapped in a message envelope, so it never parses as a command) and a worker can't self-invoke it — so the kick is **semi-auto**: when the planner marks a task goal-autonomous it emits a **ready-to-paste dispatch** (the brief **+** a *leading* `/goal <condition>` line) and the human pastes it into the worker session, selecting `/goal` from the command list so it registers. The native command is Claude-only and **optional**; the default goal-driven discipline is what every worker always does. **For a big or multi-part task the dispatch also says *use subagents/workflows*** — the worker fans out (§7 tool-ladder) rather than grinding one linear thread; building at scale is fan-out.
 
+**Plans are durable; `todo.md` is a thin router.** A planner's plan-mode pass is otherwise *ephemeral* (it
+dies with the session) — so on approval the planner **saves the plan** to `<project>/planning/plans/<slug>.md`
+(a tracked `.md`, the persisted *how* for one initiative; `roadmap.md` holds the *what/when*, `srd.md` the
+*spec*). The plan is then the **source of truth**, and `planning/todo.md` carries only a **thin task that
+routes to it** — `#N — <short title> · goal: <one line> · owner · session · branch · → plan:
+planning/plans/<slug>.md (slice: <handle>)` — never a re-statement of the plan's detail (one-fact-one-location:
+the bloat lives in the plan, not the queue). **A large plan shards across workers:** the plan splits into
+`### Slice: <handle>` sections, each becoming **one** `todo.md` task routed to its section and dispatched to its
+worker; **a small plan is a single slice → one worker.** The dispatch is unchanged — `Goal · Done-looks-like ·
+Verify-by` (+ the optional `/goal` line) — and **adds one line: *read `planning/plans/<slug>.md` (your slice)
+first*** for full context (so the worker pulls detail from the durable plan, not a bloated inline brief).
+
 **`planning/*.md` is single-writer — the planner.** A worker **never edits the queue files**: it reads its assignment (the planner placed it in `progress.md` at dispatch) and reports status/done in its own session output, which **the planner pulls** (see "Worker→planner is *pull*, not push" below). A worker **never writes the shared board to compensate, even in auto mode.** This is what stops two sessions racing the board. *(Phase-8 — a live worker correctly **deferred** its claim-commit rather than race the planner; encode that instinct.)*
 
 **Post-merge is planner-triggered — a PR merge fires no native hook event.** Each planner session runs a background **merge-watch** for its project (`scripts/merge-watch.sh <repo>`, polling `gh pr list --state merged`). The worker ran `gh pr merge` in its own session (after the human's verify) — the planner **only watches** for the merge, **never merging another session's PR**. A companion **`worker-monitor.sh`** tails the worker session transcripts (`.jsonl`) for live handoff signals (*@planner · ready to merge · MERGED PR · UNBLOCK · BLOCKER · blocked:*), so the planner notices a worker needs it without polling each session. On a newly-merged PR the planner (a) moves the task `progress.md → memory/completed-tasks.md` (the board move is the planner's — `planning/*.md` is single-writer), and (b) nudges the owning worker: *merged → run `/wrap` (memory + non-board docs + commit only) → prompt the human to `/compact`*. **Keep that nudge SHORT — `/wrap` front-and-center, nothing competing:** a long nudge (extra explainer/thanks) makes the worker do an ad-hoc memory save instead of invoking the `/wrap` *skill*, so the compact gate never clears (a `/wrap` sent as text doesn't auto-run — the worker must recognize and invoke it; human fallback: type `/wrap` in the worker session). So a **worker's `/wrap` never touches the queue board** (the hook denies it regardless) — the planner already moved it. *(merge-watch + the companion worker-monitor live in the planner session and are **background — they do NOT survive a Claude Desktop restart or `/compact`, and can die mid-session to an unexplained external kill**, so the planner **(re)starts them at session start AND re-checks every turn — restarting any that isn't running** (not just on resume); no native global daemon, since nudging a worker's `/wrap` needs the planner/CCD in the loop. **Never trust the background watch alone:** whenever a worker is mid-PR the planner ALSO foreground-polls `gh pr list --state merged` itself each turn, so a dead merge-watch can't silently drop a merge.)*
@@ -745,10 +762,11 @@ its local *implementation*. *(Distilled into the guide 2026-06-21 — promoting 
 native memory into the versioned method, itself an instance of the native→in-repo distillation §9 prescribes.)*
 
 **The project's source of truth vs its status — keep them separate.** The **source of truth** is the project's
-**spec/SRD + plan + a milestone/phase roadmap** (in `planning/`) — *what we're building* and *in what order*;
+**spec/SRD + the saved plans (`planning/plans/`) + a milestone/phase roadmap** (in `planning/`) — *what we're building* and *in what order*;
 the **status layer** (`planning/progress.md` live + `memory/{primer,completed-tasks}.md`) tracks **status against** it — *where we are*. Record **intended-vs-built** so drift is visible
-(what the plan said vs what actually shipped). Native plan mode is *ephemeral* — it dies with the session; the
-roadmap + intent-vs-built live on disk and persist. *(plan/roadmap state, from the prior implementation review.)*
+(what the plan said vs what actually shipped). Native plan mode is *ephemeral* — it dies with the session, **so the planner persists each approved plan to
+`planning/plans/<slug>.md`** (the durable *how* a worker is routed to); those saved plans + the roadmap +
+intent-vs-built live on disk and persist. *(plan/roadmap state, from the prior implementation review.)*
 
 **Consolidate memory periodically (a *dream pass*).** On a cadence, re-read `primer.md` + `decisions.md` + notes
 and **merge duplicates, resolve contradictions, prune stale entries, refresh the index** — the *active*

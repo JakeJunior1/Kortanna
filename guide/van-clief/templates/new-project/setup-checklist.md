@@ -26,7 +26,9 @@ The skeleton ships the **core** files (every project): `CLAUDE.md` · `CONTEXT.m
 merge-only) · `.gitignore` (ignores `branches/`) · `planning/{todo.md` ⏳ pending `· progress.md` 🔄 in-progress
 board`}` · `memory/{primer.md · decisions.md}` (the durable record native distills up into). **Optional** files —
 stamp from `van-clief/templates/new-project/` only when the project needs them: `srd.md`/`specs/`, `architecture`,
-`roadmap.md`, `planning/research/`, `planning/status/` (worker→planner pull-channel; auto-created on first ping), `memory/{lessons,completed-tasks}.md`.
+`roadmap.md`, `planning/plans/` (durable saved plans — `mkdir planning/plans`, then stamp
+`planning/plan.md.template` → `planning/plans/<slug>.md` per planning pass; `todo.md` routes to it),
+`planning/research/`, `planning/status/` (worker→planner pull-channel; auto-created on first ping), `memory/{lessons,completed-tasks}.md`.
 
 ### 2. Initialize git
 ```bash
@@ -76,7 +78,12 @@ brain docs (`*.md`) to main directly.
 ---
 
 ## What happens next
-- The **planning session** owns `planning/todo.md` (the task queue) — it is the sole assigner.
+- The **planning session** owns `planning/todo.md` (the task queue) — it is the sole assigner. It **defaults to
+  plan mode**: set `permissions.defaultMode: "plan"` in `~/Developer/.claude/settings.json` (the dev-root only
+  the planner roots at), or launch `claude --permission-mode plan`. It **starts each pass in plan mode** →
+  ExitPlanMode → **saves the approved plan** to `planning/plans/<slug>.md` → writes a **thin** `todo.md` task
+  that **routes to it** (`→ plan: … (slice: <handle>)`) — the detail lives in the plan, not the queue. A large
+  plan shards into `### Slice` sections (one task/worker each); a small plan = one slice → one worker.
 - Dispatch **worker** sessions: root each at the project root, mount `~/Developer/guide-setup` as a
   **read-only** additional folder (role prompt + method — never the whole dev root, which would unseal other
   projects/clients), and assign it an `owner`-matched task — **the planner** moves it `todo.md` → `progress.md` at dispatch (`planning/*.md` is planner-only; workers never edit it). The worker

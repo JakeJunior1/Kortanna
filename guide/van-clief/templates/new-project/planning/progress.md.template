@@ -9,5 +9,5 @@
 > its live `$CLAUDE_CODE_SESSION_ID` (echo it, never guess) — the exact key the resume hook matches when a session resumes.
 
 ## In progress
-- 🔄 #<N> — <task title> · **owner:** <handle, e.g. worker-2> · **session:** `<worker session uuid>` · branch `<task-slug>` · since {{YYYY-MM-DD}}
+- 🔄 #<N> — <short title> · **owner:** <handle, e.g. worker-2> · **session:** `<worker session uuid>` · branch `<task-slug>` · **→ plan:** `planning/plans/<slug>.md` (slice: `<handle>`) · since {{YYYY-MM-DD}}
   - status: <where it stands · last update · blockers>

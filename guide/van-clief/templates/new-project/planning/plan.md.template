@@ -1,0 +1,39 @@
+# Plan — {{PLAN_TITLE}}
+
+> A **durable plan** (`planning/plans/<slug>.md`) — the persisted output of a planner plan-mode pass, saved
+> on approval (VAN-CLIEF §9). This is the **source-of-truth *how*** for one initiative; `roadmap.md` holds
+> the *what / when* and `srd.md` the *spec*. `todo.md` does **not** restate this — it carries a thin task
+> that **routes here** (`→ plan: planning/plans/<slug>.md` · slice `<handle>`). **One task per slice.**
+>
+> Status: <draft | approved | building | done>  ·  Created: {{YYYY-MM-DD}}  ·  Supersedes: <plan or —>
+
+## Context
+Why this initiative — the problem/need, what prompted it, the intended outcome. (Pull from the
+mission-brief / `srd.md` / the `roadmap.md` item this realizes.)
+
+## Design
+The approach — the *how*: key decisions and the shape of the change. Name existing code/utilities to
+**reuse** (path + symbol). This is the body of the approved plan-mode plan — the detail that used to bloat
+`todo.md` lives here instead.
+
+## Slices
+> A **large** plan shards across workers — one `### Slice` per worker, each becoming **one** `todo.md` task
+> routed to it by handle (slice `<handle>`). A **small** plan is a single slice → one worker.
+
+### Slice: <handle> — <short scope>
+- **Goal:** <the outcome>
+- **Done-looks-like / Verify-by:** <the verifiable check the worker runs and surfaces — also the `/goal` condition>
+- **Context:** <named inputs — files, data, prior decisions to read first>
+- **Constraints:** <scope · **Must NOT** include · out-of-bounds>
+- **Claims (if any):** <`planning/claims/<id>` minted for any high-stakes assumption this slice rests on — the verifier checks it>
+
+### Slice: <handle> — <short scope>
+- **Goal:** …
+- **Done-looks-like / Verify-by:** …
+- **Context:** …
+- **Constraints:** …
+
+## Verification (whole-initiative)
+How we know the initiative is done end-to-end (beyond the per-slice checks) — an integration/live check, and
+the **intended-vs-built** reconciliation (what this plan said vs what actually shipped → a decision record on
+drift).
